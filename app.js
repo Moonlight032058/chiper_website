@@ -1,5 +1,5 @@
 /* =========================================================
-   【CipherLab】V2.4.2
+   【CipherLab】V2.4.3
    全部加解密运算均在浏览器本地完成，不发起任何网络请求。
    脚本使用经典 <script defer>，以兼容 file:// 直接打开。
    ========================================================= */
@@ -2039,6 +2039,1150 @@
      五、DOM 引用与界面状态
      --------------------------------------------------------- */
 
+  /* ---------------------------------------------------------
+     四点五、界面语言（中文 / English）
+     说明：英文词典以「中文原文」为键，渲染后统一按文本节点翻译；
+          带数字的动态文案交给 I18N_PATTERNS 处理。
+     --------------------------------------------------------- */
+
+  const SUPPORTED_LANGS = ['zh', 'en'];
+  const LANG_STORAGE_KEY = 'cipherlab.lang';
+  const LANG_LABELS = {
+    zh: { name: '语言', code: '中', items: { zh: '中文', en: 'English' } },
+    en: { name: 'Language', code: 'EN', items: { zh: 'Chinese', en: 'English' } },
+  };
+  const I18N_SKIP_TAGS = new Set(['SCRIPT', 'STYLE', 'TEXTAREA', 'NOSCRIPT']);
+  const I18N_ATTRIBUTES = ['placeholder', 'title', 'aria-label', 'alt', 'content'];
+  const CJK_PATTERN = /[\u4e00-\u9fff]/;
+  const I18N_PUNCTUATION = {
+    '、': ', ',
+    '，': ', ',
+    '。': '.',
+    '；': '; ',
+  };
+
+  /**
+   * 判断一段文本是否需要翻译：含汉字、整段引号短语或纯中文标点。
+   * @param {string} value
+   * @returns {boolean}
+   */
+  function isTranslatableText(value) {
+    const core = String(value).trim();
+
+    if (!core) {
+      return false;
+    }
+
+    if (CJK_PATTERN.test(core)) {
+      return true;
+    }
+
+    if (/^「[\s\S]*」$/.test(core)) {
+      return true;
+    }
+
+    return Object.prototype.hasOwnProperty.call(I18N_PUNCTUATION, core);
+  }
+
+  /* 英文词典：中文原文 → 英文译文 */
+  const I18N_EN = {
+    "【CipherLab】密码实验室：20 种经典密码与编码，支持本地加解密、破译挑战与完整密码图鉴。": "【CipherLab】Cipher Lab: 20 classic ciphers and encodings, with local encryption and decryption, decipher challenges, and a complete cipher guide.",
+    "【CipherLab】· 破译未知密文，洞悉隐秘真相。": "【CipherLab】 · Decipher unknown ciphertexts and uncover hidden truths.",
+    "CipherLab 首页": "CipherLab Home",
+    "主导航": "Main navigation",
+    "首页": "Home",
+    "加密": "Encrypt",
+    "解密": "Decrypt",
+    "破译": "Decipher",
+    "说明": "Guide",
+    "本工具需要启用 JavaScript 才能切换栏目和加解密，请启用后刷新页面。": "This tool needs JavaScript to switch sections and to encrypt or decrypt. Please enable it and refresh the page.",
+    " ==================== 首页 ==================== ": " ==================== Home ==================== ",
+    "CipherLab · 密码实验室": "CipherLab · Cipher Lab",
+    "欢迎，侦探。": "Welcome, Detective.",
+    "20 种经典密码与编码 · 10 题破译挑战 · 纯本地运算": "20 classic ciphers and encodings · 10-question decipher challenges · Fully local",
+    "密文破译": "Decipher",
+    "进入破译挑战 · 每组 10 题": "Enter the decipher challenge · 10 puzzles per set",
+    "快速加密": "Quick encrypt",
+    "输入明文，实时生成密文": "Type plaintext, get ciphertext in real time",
+    "密码图鉴": "Cipher guide",
+    "查阅算法、规则与对照表": "Browse algorithms, rules, and reference tables",
+    "支持算法，点击可进入加密并选中算法": "Supported ciphers; click one to open Encrypt with it selected",
+    "20 种算法": "20 ciphers",
+    "仿射": "Affine",
+    "培根": "Bacon",
+    "博福特": "Beaufort",
+    "盲文": "Braille",
+    "凯撒": "Caesar",
+    "四方": "Four-square",
+    "摩斯": "Morse",
+    "猪圈": "Pigpen",
+    "普莱费尔": "Playfair",
+    "波利比奥斯": "Polybius",
+    "栅栏": "Rail Fence",
+    "路径": "Route",
+    "旗语": "Semaphore",
+    "二方": "Two-square",
+    "维吉尼亚": "Vigenère",
+    " ==================== 加密 / 解密共用工作区 ==================== ": " ==================== Shared Encrypt / Decrypt workspace ==================== ",
+    "输入即实时加密，明文与密文并排对照。": "Encrypt as you type; plaintext and ciphertext side by side.",
+    " 算法选择 ": " Cipher selection ",
+    "算法": "Cipher",
+    "ADFGVX 密码": "ADFGVX cipher",
+    "仿射密码（Affine）": "Affine",
+    "ASCII 码替换（ASCII）": "ASCII",
+    "埃特巴什码（Atbash）": "Atbash",
+    "培根密码（Bacon）": "Bacon",
+    "博福特密码（Beaufort）": "Beaufort",
+    "盲文（Braille）": "Braille",
+    "凯撒密码（Caesar）": "Caesar",
+    "四方密码（Four-square）": "Four-square",
+    "摩斯密码（Morse）": "Morse",
+    "猪圈密码（Pigpen）": "Pigpen",
+    "普莱费尔密码（Playfair）": "Playfair",
+    "波利比奥斯（Polybius）": "Polybius",
+    "栅栏密码（Rail Fence）": "Rail Fence",
+    "路径密码（Route）": "Route",
+    "旗语（Semaphore）": "Semaphore",
+    "二方密码（Two-square）": "Two-square",
+    "维吉尼亚密码（Vigenère）": "Vigenère",
+    " 凯撒密钥 ": " Caesar key ",
+    "凯撒位移量": "Caesar shift",
+    "1–25 的整数，加密时字母向后位移。": "An integer from 1–25; letters shift by this amount during encryption.",
+    " 仿射密钥 ": " Affine key ",
+    "系数 a": "Coefficient a",
+    "偏移 b": "Offset b",
+    "a 必须与 26 互质（1、3、5、7、9、11、15、17、19、21、23、25），b 为 0–25 的整数。": "a must be coprime with 26 (1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25); b is an integer from 0–25.",
+    " 关键词密钥 ": " Keyword key ",
+    "密钥单词": "Keyword",
+    "仅英文字母；非字母不消耗密钥。": "English letters only; non-letters don't consume the key.",
+    " 双关键词：四方密码 / 二方密码 ": " Dual keywords: Four-square / Two-square ",
+    "关键词 1": "Keyword 1",
+    "关键词 2": "Keyword 2",
+    "两个关键词仅英文字母；I/J 合并，重复字母忽略。": "Both keywords use English letters only; I/J are merged and duplicate letters are ignored.",
+    " 栅栏数 ": " Rails ",
+    "栅栏数": "Rails",
+    "2–20 条栅栏；空格和标点也参与换位。": "2–20 rails; spaces and punctuation are transposed too.",
+    " 路径密码列数 ": " Route cipher columns ",
+    "矩阵列数": "Matrix columns",
+    "2–10 列；按行填入，顺时针螺旋读取；空格和标点参与。": "2–10 columns; fill row by row and read clockwise in a spiral; spaces and punctuation count.",
+    " 无密钥算法提示 ": " Keyless cipher note ",
+    "该算法无需密钥，直接输入文本即可。": "This cipher needs no key; just type your text.",
+    " 错误提示 ": " Error message ",
+    " 明文 / 密文并列工作区 ": " Plaintext / ciphertext workspace ",
+    "输入明文": "Plaintext",
+    "实时": "Live",
+    "清空输入文本": "Clear input text",
+    "清空": "Clear",
+    "在此输入要加密的明文…": "Type the plaintext to encrypt…",
+    "密文结果": "Ciphertext result",
+    "复制结果": "Copy result",
+    "加密结果将显示在这里": "The encrypted result will appear here",
+    " 矩阵替换型密码的加密方阵 ": " Encryption square for matrix substitution ciphers ",
+    "加密方阵": "Encryption square",
+    " 最近五次加密 / 解密记录 ": " Last five encrypt / decrypt records ",
+    "最近记录": "Recent activity",
+    "自动保存最近 5 次加密或解密": "Automatically saves your last 5 encryptions or decryptions",
+    "清空记录": "Clear history",
+    "还没有记录，输入文本后会自动生成。": "No records yet. They'll appear once you start typing.",
+    "密码破译": "Decipher",
+    "每组 10 道随机谜题，选择难度开始挑战。": "10 random puzzles per set. Pick a difficulty to begin.",
+    "挑战模式": "Challenge mode",
+    "选择难度": "Select difficulty",
+    "每组 10 道随机题，同一组明文不重复；确认开始后计时。": "10 random puzzles per set, with no repeated plaintext within a set; the timer starts when you begin.",
+    "难度选择": "Difficulty",
+    "简单": "Easy",
+    "无密钥 / 无提示": "No key / no hints",
+    "最高分：暂无纪录": "High score: no record yet",
+    "中等": "Medium",
+    "仿射 / 凯撒": "Affine / Caesar",
+    "困难": "Hard",
+    "多表 / 矩阵 / ADFGVX": "Polyalphabetic / matrix / ADFGVX",
+    "开始挑战": "Start challenge",
+    "第 1 / 10 题": "Puzzle 1 / 10",
+    "用时 00:00": "Time 00:00",
+    "得分 0": "Score 0",
+    "推理中": "Solving",
+    "解开这段密文": "Crack this ciphertext",
+    "提示：无密钥算法": "Hint: keyless cipher",
+    "密文": "Ciphertext",
+    "你的答案": "Your answer",
+    "输入你还原出的明文": "Enter the plaintext you recovered",
+    "忽略大小写、空格和标点。": "Case, spaces, and punctuation are ignored.",
+    "🛠️ 尝试解密/演算草稿": "🛠️ Try decrypting or work on a draft",
+    "密钥": "Key",
+    "试算": "Run",
+    "试算结果会显示在这里": "Trial results will appear here",
+    "草稿结果仅供验证思路，不会自动提交答案。": "Scratch results only check your reasoning; they are never submitted automatically.",
+    "提示": "Hint",
+    "提交答案": "Submit answer",
+    "放弃": "Give up",
+    "下一题": "Next puzzle",
+    "挑战完成": "Challenge complete",
+    "本组结果": "Set results",
+    "完美通关": "Perfect run",
+    " 分": " pts",
+    "答对 0 / 10 · 用时 00:00": "Correct 0 / 10 · Time 00:00",
+    "再来一组": "New set",
+    "重新选择难度": "Choose difficulty again",
+    "离开游戏": "Leave challenge",
+    "挑战进行中": "Challenge in progress",
+    "你要终止挑战吗？": "End this challenge?",
+    "终止后将结算本组挑战。": "The current set will be scored once you stop.",
+    "继续挑战": "Continue challenge",
+    "终止并结算": "Stop and score",
+    "算法说明": "Cipher guide",
+    "按单表、多表、矩阵、换位、其他五类浏览，或搜索算法查看规则、示例与完整对照表。": "Browse monoalphabetic, polyalphabetic, matrix, transposition, or other ciphers, or search to view rules, examples, and the full reference table.",
+    "算法分类": "Cipher categories",
+    "全部": "All",
+    "单表替换": "Monoalphabetic substitution",
+    "多表替换": "Polyalphabetic substitution",
+    "矩阵替换": "Matrix substitution",
+    "换位密码": "Transposition",
+    "其他加密": "Other ciphers",
+    "按单表、多表、矩阵、换位、其他五类浏览，也可以直接搜索算法。": "Browse the five categories, or search for a cipher directly.",
+    "搜索算法": "Search ciphers",
+    "搜索算法，例如：凯撒密码": "Search ciphers, e.g. Caesar cipher",
+    "支持中文名、英文名和别名；输入即筛选。": "Supports Chinese names, English names, and aliases; filters as you type.",
+    "全部 · 共 20 个算法": "All · 20 ciphers total",
+    "算法列表": "Cipher list",
+    "【CipherLab】· 纯本地运算，文本不会上传。 ": "【CipherLab】 · Runs entirely locally; your text is never uploaded. ",
+    "请输入至少一个英文字母": "Enter at least one English letter.",
+    "密文长度必须为偶数": "The ciphertext length must be even.",
+    "请输入两个关键词（仅英文字母）": "Enter two keywords (letters only).",
+    "波利比奥斯方阵密文应为 1–5 的两位坐标": "Polybius square ciphertext must be two-digit coordinates from 1 to 5.",
+    "请输入栅栏数（2–20 的整数）": "Enter the number of rails (an integer from 2 to 20).",
+    "栅栏数需为 2–20 的整数": "The rail count must be an integer from 2 to 20.",
+    "请输入需要编码的文本": "Enter the text to encode.",
+    "请输入至少一个英文字母或数字": "Enter at least one English letter or digit.",
+    "ADFGVX 密文长度必须为偶数": "ADFGVX ciphertext length must be even.",
+    "ADFGVX 密文只能包含 A、D、F、G、V、X": "ADFGVX ciphertext may only contain A, D, F, G, V, and X.",
+    "请输入列数（2–10 的整数）": "Enter the number of columns (an integer from 2 to 10).",
+    "列数需为 2–10 的整数": "The column count must be an integer from 2 to 10.",
+    "九宫格（无点）": "Grid (no dot)",
+    "九宫格（带点）": "Grid (with dot)",
+    "X 形区域": "X-shaped region",
+    "下": "Bottom",
+    "低": "Lower",
+    "外": "Outer",
+    "高": "Upper",
+    "上": "Top",
+    "横低": "Lower horizontal",
+    "横高": "Upper horizontal",
+    "空格": "Space",
+    "盲文数字符号后应为 A–J 对应的数字单元": "The Braille number sign must be followed by a digit cell corresponding to A–J.",
+    "无法识别的盲文单元": "Unrecognized Braille cell.",
+    "盲文数字符号后缺少数字单元": "Missing digit cell after the Braille number sign.",
+    "数字编码": "Number encoding",
+    "把英文字母换成它在字母表中的序号：A=1、B=2、…、Z=26。": "Replace each English letter with its position in the alphabet: A=1, B=2, …, Z=26.",
+    "字母序号": "Alphabet position",
+    "无需密钥。": "No key required.",
+    "英文字母转成 1–26 的数字，数字之间用 - 分隔；其他字符原样保留。": "English letters become numbers 1–26 separated by -; other characters are kept as is.",
+    "把 1–26 的数字还原为英文字母；解密结果统一为大写。": "Convert numbers 1–26 back to English letters; decryption returns uppercase.",
+    "明文中的数字、连字符和反斜杠会用 \\ 转义，保证往返可逆。": "Digits, hyphens, and backslashes in the plaintext are escaped with \\ so the round trip is reversible.",
+    "不保留大小写：解密结果统一为大写。": "Case is not preserved: decryption returns uppercase.",
+    "属于数字编码，不是安全的加密算法。": "This is number encoding, not a secure cipher.",
+    "仿射密码": "Affine cipher",
+    "单表替换 · 仿射": "Monoalphabetic substitution · Affine",
+    "用一次线性变换 y = (a·x + b) mod 26 完成字母替换。": "Letter substitution via the linear transform y = (a·x + b) mod 26.",
+    "两个整数 a、b；a 必须与 26 互质（1、3、5、7、9、11、15、17、19、21、23、25），b 取 0–25。": "Two integers a and b; a must be coprime with 26 (1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25); b is 0–25.",
+    "字母索引 x 变为 (a·x + b) mod 26。": "Letter index x becomes (a·x + b) mod 26.",
+    "字母索引 y 变为 a⁻¹·(y − b) mod 26，其中 a⁻¹ 是 a 在模 26 下的逆元。": "Letter index y becomes a⁻¹·(y − b) mod 26, where a⁻¹ is the modular inverse of a modulo 26.",
+    "a 与 26 不互质时不存在解密所需的逆元，因此密钥非法。": "If a is not coprime with 26, the inverse needed for decryption does not exist, so the key is invalid.",
+    "a=1、b=0 时结果不变；a=1 时等价于凯撒位移 b。": "a=1, b=0 leaves the text unchanged; a=1 is equivalent to a Caesar shift of b.",
+    "大小写保留，非字母字符不变。": "Case is preserved; non-letter characters are unchanged.",
+    "ASCII 码替换": "ASCII codes",
+    "字符编码": "Character encoding",
+    "把每个字符换成对应的十进制 ASCII 码。": "Replace each character with its decimal ASCII code.",
+    "ascii码": "ASCII code",
+    "字符转成 0–127 的十进制 ASCII 码，用空格分隔。": "Characters become decimal ASCII codes from 0 to 127, separated by spaces.",
+    "把空格分隔的数字还原为对应字符。": "Convert space-separated numbers back to the corresponding characters.",
+    "只支持 ASCII 字符；中文、emoji 会提示错误。": "Only ASCII characters are supported; Chinese text and emoji raise an error.",
+    "空格会被编码为 32，因此结果是纯数字串。": "A space is encoded as 32, so the output is a pure digit string.",
+    "属于字符编码，不是加密算法。": "This is character encoding, not encryption.",
+    "埃特巴什码": "Atbash",
+    "单表替换 · 镜像": "Monoalphabetic substitution · Mirror",
+    "把字母表首尾镜像：A↔Z、B↔Y、C↔X。": "Mirror the alphabet end to end: A↔Z, B↔Y, C↔X.",
+    "埃特巴什": "Atbash",
+    "镜像": "Mirror",
+    "每个字母替换为距字母表中心对称的字母，大小写各自镜像。": "Each letter is replaced by its mirror image about the center of the alphabet; upper and lower case are mirrored separately.",
+    "与加密相同，再执行一次即可还原。": "Same as encryption; applying it once more restores the plaintext.",
+    "自反算法：加密和解密使用同一规则。": "Self-inverse: encryption and decryption use the same rule.",
+    "非字母字符不变。": "Non-letter characters are unchanged.",
+    "只有一种固定映射，安全性很低。": "Only one fixed mapping exists, so security is very low.",
+    "博福特密码": "Beaufort cipher",
+    "以关键词为密钥的多表替换，使用 C = K − P。": "Polyalphabetic substitution keyed by a keyword, using C = K − P.",
+    "英文字母关键词，例如 KEY；只含字母，大小写不敏感；非字母不消耗密钥位置。": "An English-letter keyword, e.g. KEY; letters only, case-insensitive; non-letters do not consume a key position.",
+    "每个明文字母 P 与循环使用的密钥字母 K 计算 (K − P) mod 26。": "Each plaintext letter P is combined with the cyclically repeated key letter K as (K − P) mod 26.",
+    "对密文字母 C 计算 (K − C) mod 26；与加密公式相同，算法自反。": "Each ciphertext letter C is combined with K as (K − C) mod 26; the formula matches encryption, so the cipher is self-inverse.",
+    "HELLO，密钥 KEY → DANZQ": "HELLO, key KEY → DANZQ",
+    "这里实现的是标准博福特，不是变体博福特（P − K）。": "This implements standard Beaufort, not Variant Beaufort (P − K).",
+    "关键词只使用英文字母；遇到非字母字符时密钥不前进。": "The keyword uses only English letters; the key does not advance on non-letter characters.",
+    "大小写保留。": "Case is preserved.",
+    "凯撒密码": "Caesar cipher",
+    "单表替换 · 移位": "Monoalphabetic substitution · Shift",
+    "把每个字母沿字母表固定移动若干位。": "Shift every letter a fixed number of places along the alphabet.",
+    "移位": "Shift",
+    "1–25 的整数位移量。": "An integer shift of 1–25.",
+    "每个字母向后移动 k 位；超过 Z 后回到 A。": "Each letter moves forward k places, wrapping from Z back to A.",
+    "每个字母向前移动 k 位。": "Each letter moves backward k places.",
+    "密钥空间只有 25 种，容易被穷举。": "The key space has only 25 possibilities, so brute force is easy.",
+    "只变换英文字母，其他字符不变。": "Only English letters are transformed; other characters are unchanged.",
+    "大小写保持。": "Case is preserved.",
+    "单表替换 · 固定移位": "Monoalphabetic substitution · Fixed shift",
+    "固定位移 13 位的凯撒密码特例。": "A special case of the Caesar cipher with a fixed shift of 13.",
+    "凯撒13": "ROT13",
+    "固定移位": "Fixed shift",
+    "每个英文字母移动 13 位。": "Each English letter moves 13 places.",
+    "再次移动 13 位；与加密相同，算法自反。": "Move 13 places again; identical to encryption, so the cipher is self-inverse.",
+    "因为 13×2=26，加密两次回到原文。": "Because 13×2=26, encrypting twice returns the original text.",
+    "不提供真正的保密性，常用于隐藏剧透或弱混淆。": "Provides no real confidentiality; often used to hide spoilers or for light obfuscation.",
+    "维吉尼亚密码": "Vigenère cipher",
+    "用关键词循环移位，每个字母使用不同的凯撒位移。": "Uses a repeating keyword so that each letter gets a different Caesar shift.",
+    "弗吉尼亚": "Vigenère",
+    "英文字母关键词，例如 LEMON；只含字母，大小写不敏感；非字母不消耗密钥位置。": "An English-letter keyword, e.g. LEMON; letters only, case-insensitive; non-letters do not consume a key position.",
+    "每个明文字母 P 加上当前密钥字母 K，得到 (P + K) mod 26。": "Each plaintext letter P plus the current key letter K gives (P + K) mod 26.",
+    "每个密文字母 C 减去当前密钥字母 K，得到 (C − K) mod 26。": "Each ciphertext letter C minus the current key letter K gives (C − K) mod 26.",
+    "ATTACKATDAWN，密钥 LEMON → LXFOPVEFRNHR": "ATTACKATDAWN, key LEMON → LXFOPVEFRNHR",
+    "关键词循环使用；空格、标点和数字不消耗密钥。": "The keyword repeats cyclically; spaces, punctuation, and digits do not consume key letters.",
+    "比单表替换更强，但仍可能被频率分析或已知明文攻击破解。": "Stronger than monoalphabetic substitution, but still breakable by frequency analysis or known-plaintext attacks.",
+    "关键词只使用英文字母。": "The keyword uses only English letters.",
+    "四方密码": "Four-square cipher",
+    "四个 5×5 方阵 · 双字母替换": "Four 5×5 squares · Digraph substitution",
+    "用四个 5×5 方阵，把一对明文字母替换成另一对字母。": "Uses four 5×5 squares to replace each plaintext digraph with another digraph.",
+    "两个英文字母关键词（两个密钥方阵）；只含字母，I/J 合并。": "Two English-letter keywords (for the two keyed squares); letters only, I/J combined.",
+    "明文整理为大写字母（J→I，非字母去掉），两两分组，末尾补 X；按两个标准方阵定位，再从两个密钥方阵取交叉字母。": "Normalize the plaintext to uppercase letters (J→I, non-letters removed), split it into digraphs, and pad the end with X; locate each pair in the two standard squares and take the cross letters from the two keyed squares.",
+    "在密钥方阵中定位密文字母，回到两个标准方阵取交叉字母。": "Locate the ciphertext letters in the keyed squares and take the cross letters from the two standard squares.",
+    "THEPRISONERSHAVEESCAPED，密钥 HACK / SAFE → SHBOTDTMPFSQDFZSCUHFPBCY": "THEPRISONERSHAVEESCAPED, key HACK / SAFE → SHBOTDTMPFSQDFZSCUHFPBCY",
+    "只处理英文字母，输出大写、无空格；末尾补齐的 X 会保留。": "Only English letters are processed; output is uppercase with no spaces, and padding X is kept.",
+    "I/J 合并，J 会当成 I 处理。": "I/J are combined, so J is treated as I.",
+    "两个关键词可以不同，推荐使用两个独立关键词。": "The two keywords may differ; two independent keywords are recommended.",
+    "摩斯密码": "Morse code",
+    "点划码": "Dot-dash code",
+    "用点（.）和划（-）表示字母、数字与常用标点。": "Uses dots (.) and dashes (-) to represent letters, digits, and common punctuation.",
+    "摩尔斯": "Morse",
+    "点划": "Dot-dash",
+    "字母、数字和常用标点转成摩斯码；字母之间用空格，单词之间用 / 分隔。": "Letters, digits, and common punctuation become Morse code; letters are separated by spaces and words by /.",
+    "按 / 分词、按空格分字母，再逐码还原。": "Split words on /, letters on spaces, then decode each code.",
+    "不保留大小写，解密结果为大写。": "Case is not preserved; decryption returns uppercase.",
+    "连续空格和换行会规范为一个空格。": "Runs of spaces and newlines are normalized to a single space.",
+    "不支持的字符（如中文、emoji）会明确报错。": "Unsupported characters (such as Chinese text or emoji) raise an explicit error.",
+    "下方给出本工具支持的完整字符对照表。": "The full character table supported by this tool is shown below.",
+    "普莱费尔密码": "Playfair cipher",
+    "5×5 方阵 · 双字母替换": "5×5 square · Digraph substitution",
+    "用关键词方阵把成对字母替换成另外两个字母。": "Uses a keyword square to replace each pair of letters with two other letters.",
+    "英文字母关键词；只含字母，I/J 合并，重复字母忽略。": "An English-letter keyword; letters only, I/J combined, repeated letters ignored.",
+    "明文整理为大写字母（J→I，非字母去掉），两两分组；同组重复插入 X，末尾不足补 X。同行右移、同列下移，其余交换列。": "Normalize the plaintext to uppercase letters (J→I, non-letters removed) and split it into digraphs; insert X between repeated letters in a pair and pad a short final pair with X. Same row: shift right; same column: shift down; otherwise swap columns.",
+    "按相反方向移动：同行左移、同列上移，其余交换列。": "Move in the opposite direction: same row shifts left, same column shifts up, otherwise swap columns.",
+    "SUPERSECRETMESSAGE，密钥 safety → YSQFNTFDQTGRTAAFDT": "SUPERSECRETMESSAGE, key safety → YSQFNTFDQTGRTAAFDT",
+    "只处理英文字母，输出大写、无空格；插入或补齐的 X 会保留在解密结果中。": "Only English letters are processed; output is uppercase with no spaces, and inserted or padding X remains in the decrypted text.",
+    "I/J 合并；关键词中的重复字母只保留一次。": "I/J are combined; repeated letters in the keyword are kept only once.",
+    "属于双字母替换，比单表替换更能抵抗简单频率分析。": "A digraph substitution, more resistant to simple frequency analysis than monoalphabetic substitution.",
+    "波利比奥斯方阵": "Polybius square",
+    "5×5 坐标替换": "5×5 coordinate substitution",
+    "把字母放进 5×5 方阵，用行列坐标表示。": "Places letters in a 5×5 square and represents them by row and column coordinates.",
+    "棋盘密码": "Checkerboard cipher",
+    "无需密钥；固定 5×5 方阵，I/J 合并。": "No key required; a fixed 5×5 square with I/J combined.",
+    "字母转成两位行列坐标（1–5），坐标对之间用空格分隔；非字母去掉。": "Letters become two-digit row/column coordinates (1–5), with coordinate pairs separated by spaces; non-letters are removed.",
+    "把 1–5 的两位坐标还原为字母。": "Convert the two-digit coordinates (1–5) back to letters.",
+    "只处理英文字母，输出大写；J 会还原为 I。": "Only English letters are processed; output is uppercase, and J is restored as I.",
+    "方阵固定，不支持自定义字母表。": "The square is fixed; custom alphabets are not supported.",
+    "下方给出完整 5×5 方阵。": "The full 5×5 square is shown below.",
+    "栅栏密码": "Rail Fence cipher",
+    "换位密码 · 之字形": "Transposition · Zigzag",
+    "把文本按之字形写到多条栅栏上，再按行读出。": "Writes the text in a zigzag across several rails, then reads it off row by row.",
+    "之字形": "Zigzag",
+    "2–20 的整数栅栏数。": "An integer rail count of 2–20.",
+    "按之字形把每个字符分配到 0…n−1 号栅栏，再按栅栏顺序拼接。": "Assign each character to rail 0…n−1 in zigzag order, then concatenate the rails in order.",
+    "重建之字形位置，按各行长度切分密文，再按原路径读回。": "Reconstruct the zigzag positions, split the ciphertext by row length, then read it back along the original path.",
+    "WEAREDISCOVEREDFLEEATONCE，3 栏 → WECRLTEERDSOEEFEAOCAIVDEN": "WEAREDISCOVEREDFLEEATONCE, 3 rails → WECRLTEERDSOEEFEAOCAIVDEN",
+    "空格和标点也参与换位，因此解密可以完整还原。": "Spaces and punctuation are transposed too, so decryption restores the text exactly.",
+    "输出中的空格位置会改变，这是换位密码的正常现象。": "Space positions in the output change; this is normal for a transposition cipher.",
+    "栅栏数越大，文本被打散得越明显。": "The more rails, the more the text is scrambled.",
+    "二方密码": "Two-square cipher",
+    "左右 5×5 方阵 · 双字母替换": "Two side-by-side 5×5 squares · Digraph substitution",
+    "用左右两个 5×5 密钥方阵，把一对字母替换成矩形对角位置的字母。": "Uses two 5×5 keyed squares side by side to replace each digraph with the letters at the other corners of the rectangle.",
+    "双方阵": "Double square",
+    "两个英文字母关键词；只含字母，I/J 合并。": "Two English-letter keywords; letters only, I/J combined.",
+    "明文整理为大写字母（J→I，非字母去掉），两两分组，末尾补 X；第一个字母查左方阵，第二个查右方阵，取矩形另外两个角。": "Normalize the plaintext to uppercase letters (J→I, non-letters removed), split it into digraphs, and pad with X; look up the first letter in the left square and the second in the right square, then take the other two corners of the rectangle.",
+    "在左右方阵中定位密文字母，再按矩形规则还原。": "Locate the ciphertext letters in the left and right squares, then reverse the rectangle rule.",
+    "IOEX，密钥 EXAMPLE / KEYWORD → NYMT": "IOEX, key EXAMPLE / KEYWORD → NYMT",
+    "这里实现的是横向二方密码（左右两个方阵）。": "This implements the horizontal Two-square cipher (left and right squares).",
+    "只处理英文字母，输出大写、无空格；J→I，末尾补齐的 X 会保留。": "Only English letters are processed; output is uppercase with no spaces, J→I, and padding X is kept.",
+    "解密 NYMT 会得到 IOEX，而不是原始 JOE，因为 J 已合并为 I 且补了 X。": "Decrypting NYMT yields IOEX rather than the original JOE, because J was merged into I and X was padded.",
+    "6×6 方阵 + 列换位": "6×6 square + columnar transposition",
+    "先用 6×6 方阵把字符变成 ADFGVX 坐标，再进行列换位。": "First converts characters into ADFGVX coordinates with a 6×6 square, then applies columnar transposition.",
+    "adfgvx密码": "ADFGVX cipher",
+    "坐标换位": "Coordinate transposition",
+    "两个英文字母关键词：关键词 1 生成 6×6 方阵，关键词 2 用于列换位。": "Two English-letter keywords: keyword 1 builds the 6×6 square, keyword 2 drives the columnar transposition.",
+    "字符先转成两个 ADFGVX 坐标字母，再按第二个关键词做列换位。": "Characters first become two ADFGVX coordinate letters, then are transposed by column using the second keyword.",
+    "先逆向列换位，再把坐标对还原为字符。": "Undo the columnar transposition first, then convert each coordinate pair back to a character.",
+    "ATTACKATDAWN，密钥 CARGO / SECRET → GAGGDDDDGFDFDADVAAAADAAG": "ATTACKATDAWN, key CARGO / SECRET → GAGGDDDDGFDFDADVAAAADAAG",
+    "支持 A–Z 和 0–9；其他字符会被去掉。": "Supports A–Z and 0–9; other characters are removed.",
+    "关键词只使用英文字母；两个关键词分别负责方阵和换位。": "Keywords use only English letters; the two keywords control the square and the transposition respectively.",
+    "下方给出示例 6×6 方阵。": "An example 6×6 square is shown below.",
+    "培根密码": "Bacon cipher",
+    "5 位 A/B 编码": "5-bit A/B encoding",
+    "每个字母用 5 个 A/B 符号表示。": "Each letter is represented by five A/B symbols.",
+    "ab码": "A/B code",
+    "无需密钥；26 字母各对应一个 5 位 A/B 码。": "No key required; each of the 26 letters maps to a 5-symbol A/B code.",
+    "字母转成 5 位 A/B 码，每个字母之间用空格分隔。": "Letters become 5-symbol A/B codes, separated by spaces.",
+    "把每组 5 位 A/B 码还原为字母。": "Convert each 5-symbol A/B group back to a letter.",
+    "只处理英文字母，输出大写。": "Only English letters are processed; output is uppercase.",
+    "使用 26 字母版本，I/J、U/V 不合并。": "Uses the 26-letter version; I/J and U/V are not combined.",
+    "下方给出完整 26 字母对照表。": "The full 26-letter table is shown below.",
+    "六点盲文单元": "Six-dot Braille cell",
+    "用 2×3 的六个凸点组合表示字母、数字和标点。": "Uses combinations of the six raised dots in a 2×3 cell to represent letters, digits, and punctuation.",
+    "点字": "Braille",
+    "字母转成 Unicode 盲文单元；数字前加数字符号；支持空格和常用标点。": "Letters become Unicode Braille cells; digits are prefixed with a number sign; spaces and common punctuation are supported.",
+    "逐个盲文单元还原；数字符号后的单元按数字读取。": "Decode cell by cell; cells after a number sign are read as digits.",
+    "字母不区分大小写，解密结果为大写。": "Letters are case-insensitive; decryption returns uppercase.",
+    "数字使用数字符号加 A–J 单元表示；标点使用标准盲文单元。": "Digits use a number sign followed by the A–J cells; punctuation uses standard Braille cells.",
+    "下方给出本工具支持的完整盲文对照表。": "The full Braille table supported by this tool is shown below.",
+    "猪圈密码": "Pigpen cipher",
+    "九宫格 / X 形格位": "Grid / X-shaped cells",
+    "用九宫格和 X 形区域的位置表示字母。": "Represents letters by positions in a grid and in X-shaped regions.",
+    "共济会密码": "Freemason's cipher",
+    "无需密钥；使用“区域 + 格位”码，如 1a、2b、3c。": "No key required; uses \"region + cell\" codes such as 1a, 2b, 3c.",
+    "字母转成格位码：1/2 为九宫格，3 为 X 形区域；码之间用空格分隔。": "Letters become cell codes: 1/2 for the grid, 3 for the X-shaped region; codes are separated by spaces.",
+    "把格位码还原为字母。": "Convert cell codes back to letters.",
+    "本工具用可复制的格位码表示猪圈符号，说明栏给出完整格位图。": "This tool represents Pigpen symbols with copyable cell codes; the full cell chart is shown in the notes.",
+    "下方给出 26 个字母的完整对照表。": "The full table for all 26 letters is shown below.",
+    "路径密码": "Route cipher",
+    "换位密码 · 顺时针螺旋": "Transposition · Clockwise spiral",
+    "把文本按行填入矩阵，再从左上角顺时针螺旋读出。": "Fills the text into a matrix row by row, then reads it out in a clockwise inward spiral from the top-left corner.",
+    "螺旋密码": "Spiral cipher",
+    "2–10 的整数矩阵列数。": "An integer column count of 2–10 for the matrix.",
+    "按行填入 rows × columns 矩阵，从左上角顺时针向内螺旋读取。": "Fill a rows × columns matrix row by row, then read inward in a clockwise spiral from the top-left corner.",
+    "按螺旋路径填回矩阵，再按行读出。": "Fill the matrix back along the spiral path, then read it row by row.",
+    "ABCDEFGHI，4 列 → ABCDHIEFG": "ABCDEFGHI, 4 columns → ABCDHIEFG",
+    "列数决定矩阵形状；最后一行不足时跳过空位。": "The column count determines the matrix shape; empty cells in a short final row are skipped.",
+    "属于换位密码，不改变字符本身。": "A transposition cipher: it changes only the order of characters, not the characters themselves.",
+    "左右臂位置码": "Left/right arm position codes",
+    "用左右两臂的八个方向位置表示字母。": "Represents letters by the eight directional positions of the left and right arms.",
+    "旗语密码": "Semaphore cipher",
+    "手旗": "Flag semaphore",
+    "无需密钥；使用左右臂位置码，如 D-L。": "No key required; uses left/right arm position codes such as D-L.",
+    "字母转成左右臂位置码；码之间用空格分隔。": "Letters become left/right arm position codes, separated by spaces.",
+    "把位置码还原为字母。": "Convert position codes back to letters.",
+    "本工具以可复制的位置码表示旗语，说明栏给出完整左右臂对照表。": "This tool represents semaphore with copyable position codes; the full left/right arm table is shown in the notes.",
+    "一个明文字符固定对应一个密文字符，如凯撒、Atbash、仿射。": "Each plaintext character always maps to a single ciphertext character, e.g. Caesar, Atbash, Affine.",
+    "同一明文字符在不同位置可能对应不同密文字符，如维吉尼亚、博福特。": "The same plaintext character may map to different ciphertext characters at different positions, e.g. Vigenère, Beaufort.",
+    "使用 5×5 方阵进行单字母或双字母替换，如普莱费尔、四方、二方、波利比奥斯。": "Uses 5×5 squares for single-letter or digraph substitution, e.g. Playfair, Four-square, Two-square, Polybius.",
+    "只改变字符顺序，不改变字符本身，如栅栏、路径。": "Changes only the order of characters, not the characters themselves, e.g. Rail Fence, Route.",
+    "用符号、图形、点划、坐标或编码表示字符；每种算法都附完整字符对照表。": "Represents characters with symbols, shapes, dots and dashes, coordinates, or codes; every algorithm includes a full character table.",
+    "加密 · 【CipherLab】": "Encrypt · 【CipherLab】",
+    "解密 · 【CipherLab】": "Decrypt · 【CipherLab】",
+    "破译 · 【CipherLab】": "Decipher · 【CipherLab】",
+    "说明 · 【CipherLab】": "Guide · 【CipherLab】",
+    "标准方阵": "Standard square",
+    "固定 5×5 方阵；I/J 合并，坐标从 1 开始。": "Fixed 5×5 square; I/J are merged and coordinates start at 1.",
+    "固定方阵": "Fixed square",
+    "仅英文字母；I/J 合并，重复字母会忽略。": "English letters only; I/J are merged and duplicate letters are ignored.",
+    "仅英文字母；非字母字符不消耗密钥位置。": "English letters only; non-letter characters do not consume key positions.",
+    "关键词 1 生成 6×6 方阵，关键词 2 用于列换位；仅英文字母。": "Keyword 1 builds the 6×6 square, keyword 2 is used for column transposition; English letters only.",
+    "A1Z26 无需密钥；字母转为 1–26，解密为大写。": "A1Z26 needs no key; letters map to 1–26 and decryption outputs uppercase.",
+    "ASCII 码替换无需密钥；字符会转为十进制 ASCII 码（仅支持 ASCII）。": "ASCII code substitution needs no key; characters become decimal ASCII codes (ASCII only).",
+    "Atbash 无需密钥，直接输入文本即可。": "Atbash needs no key, just enter your text.",
+    "ROT13 无需密钥，直接输入文本即可。": "ROT13 needs no key, just enter your text.",
+    "无需密钥；字母转为行列坐标。": "No key needed; letters become row and column coordinates.",
+    "摩斯密码无需密钥；字母用空格分隔，单词用 / 分隔。": "Morse code needs no key; letters are separated by spaces and words by /.",
+    "猪圈密码无需密钥；使用“区域 + 格位”码，如 1a、2b。": "Pigpen needs no key; it uses \"region + cell\" codes, such as 1a, 2b.",
+    "旗语无需密钥；使用左右臂位置码，如 D-L。": "Semaphore needs no key; it uses left/right arm position codes, such as D-L.",
+    "培根密码无需密钥；每个字母对应 5 位 A/B 码。": "Bacon cipher needs no key; each letter maps to a 5-bit A/B code.",
+    "盲文无需密钥；字母转为 Unicode 盲文单元。": "Braille needs no key; letters become Unicode Braille cells.",
+    "已复制": "Copied",
+    "凯撒位移量必须是 1–25 的整数": "Caesar shift must be an integer from 1 to 25",
+    "请输入仿射密码的 a 和 b（整数）": "Enter a and b for the Affine cipher (integers)",
+    "仿射密码的 a 和 b 必须是整数": "a and b for the Affine cipher must be integers",
+    "仿射密码的 a 必须是 1–25 中与 26 互质的整数": "a for the Affine cipher must be an integer from 1 to 25 that is coprime with 26",
+    "仿射密码的 b 需在 0–25 之间": "b for the Affine cipher must be between 0 and 25",
+    "请输入密钥单词（仅英文字母）": "Enter a key word (English letters only)",
+    "密钥单词只能包含英文字母": "The key word may contain English letters only",
+    "关键词只能包含英文字母": "Keywords may contain English letters only",
+    "处理失败，请检查输入后重试": "Processing failed, please check your input and try again",
+    "输入": "Input",
+    "输出": "Output",
+    "复制失败，请手动选中结果后复制": "Copy failed, please select the result manually and copy it",
+    "输入即实时解密，密文与明文并排对照。": "Decrypts as you type, with ciphertext and plaintext side by side.",
+    "输入密文": "Enter ciphertext",
+    "在此输入要解密的密文…": "Type the ciphertext to decrypt here…",
+    "明文结果": "Plaintext result",
+    "解密结果将显示在这里": "The decryption result will appear here",
+    "完整 5×5 方阵": "Full 5×5 square",
+    "字符": "Character",
+    "电码": "Code",
+    "编码": "Encoding",
+    "完整 26 字母格位对照表": "Full 26-letter cell code table",
+    "完整 26 字母旗语对照表": "Full 26-letter semaphore table",
+    "字母": "Letter",
+    "左臂": "Left arm",
+    "右臂": "Right arm",
+    "位置码": "Position code",
+    "算法详情": "Algorithm details",
+    "示例": "Example",
+    "注意": "Notes",
+    "示例加密方阵": "Sample encryption square",
+    "完整 26 字母对照表": "Full 26-letter table",
+    "完整盲文对照表": "Full Braille table",
+    "没有找到匹配的算法": "No matching algorithm found",
+    "没有可显示的算法。": "No algorithms to show.",
+    "未找到匹配算法": "No matching algorithms",
+    "无密钥算法（本难度禁用提示）": "Keyless algorithm (hints disabled at this difficulty)",
+    "单表替换（密钥未知）": "Monoalphabetic substitution (key unknown)",
+    "多表 / 矩阵 / 其他密钥算法（密钥未知）": "Polyalphabetic / matrix / other keyed algorithms (key unknown)",
+    "我们截获了一段密信，但在破译时出现了问题，其中的单词尚不明晰……": "We intercepted an encrypted message, but something went wrong while deciphering it, and some of its words are still unclear…",
+    "感谢您的协助，侦探。": "Thank you for your help, Detective.",
+    "凯撒位移量需为 1–25 的整数": "Caesar shift must be an integer from 1 to 25",
+    "仿射密钥格式为 a,b，例如 5,8": "Affine key format is a,b, for example 5,8",
+    "请输入两个关键词，例如 HACK / SAFE": "Enter two keywords, for example HACK / SAFE",
+    "当前算法暂不支持草稿试算": "This algorithm can't be run in the scratchpad yet",
+    "该算法无需密钥，直接试算即可。": "This algorithm needs no key, just run it directly.",
+    "输入 1–25 的位移量。": "Enter a shift from 1 to 25.",
+    "格式：a,b，例如 5,8。": "Format: a,b, for example 5,8.",
+    "输入英文关键词。": "Enter an English keyword.",
+    "格式：关键词1 / 关键词2。": "Format: keyword1 / keyword2.",
+    "无需密钥": "No key needed",
+    "输入你猜想的密钥": "Enter your guessed key",
+    "当前算法暂不支持草稿试算。": "This algorithm can't be run in the scratchpad yet.",
+    "请选择当前难度中的算法": "Please pick an algorithm from the current difficulty",
+    "试算失败，请检查密钥。": "Run failed, please check the key.",
+    "无": "None",
+    "密钥：无": "Key: none",
+    "准备中…": "Preparing…",
+    "提示不可用": "Hints unavailable",
+    "已提示": "Hint shown",
+    "再提示": "Another hint",
+    "正确答案": "Correct answer",
+    "题目生成失败，请重新选择难度。": "Failed to generate a puzzle, please pick a difficulty again.",
+    "查看结果": "See results",
+    "请输入答案后再提交。": "Please enter an answer before submitting.",
+    "已解开": "Solved",
+    "答案不对，再试一次。": "Wrong answer, try again.",
+    "已放弃，本题不得分。": "Given up, no points for this question.",
+    "已放弃": "Given up",
+    "挑战已终止": "Challenge ended",
+    " · 新纪录！": " · New record!",
+    "语言": "Language",
+    "选择语言": "Select language",
+    "分": "pts",
+  };
+
+  /* 补充：动态文案片段与输入校验提示 */
+  Object.assign(I18N_EN, {
+    '仿射密码的 a 必须与 26 互质': 'The affine a must be coprime with 26.',
+    '请输入凯撒位移量（1–25 的整数）': 'Enter the Caesar shift (an integer from 1 to 25).',
+    '凯撒位移量需在 1–25 之间': 'The Caesar shift must be between 1 and 25.',
+    'A1Z26 密文中的转义符不完整': 'The A1Z26 ciphertext has an incomplete escape sequence.',
+    'A1Z26 解密仅支持 1–26 的数字编码': 'A1Z26 decryption only supports numbers from 1 to 26.',
+    'ASCII 码替换仅支持 ASCII 字符（码点 0–127）': 'ASCII codes only support ASCII characters (code points 0–127).',
+    '请输入以空格分隔的 ASCII 码（0–127）': 'Enter space-separated ASCII codes (0–127).',
+    'ASCII 码必须在 0–127 之间': 'ASCII codes must be between 0 and 127.',
+    '密钥方阵': 'Key square',
+    '密钥方阵 1': 'Key square 1',
+    '密钥方阵 2': 'Key square 2',
+    '左方阵': 'Left square',
+    '右方阵': 'Right square',
+    '密钥词': 'Key word',
+    '找不到游戏算法': 'Game algorithm not found',
+    '加密算法': 'Cipher',
+    '本题得分': 'Question score',
+    '方阵中找不到字母': 'Letter not found in the square',
+    '摩斯密码不支持字符': 'Morse code does not support character',
+    '无法识别的摩斯码': 'Unrecognized Morse code',
+    '无法识别的猪圈格位码': 'Unrecognized Pigpen cell code',
+    '无法识别的旗语位置码': 'Unrecognized Semaphore position code',
+    '无法识别的培根码': 'Unrecognized Bacon code',
+    '盲文暂不支持字符': 'Braille does not support character',
+    '算法': 'Algorithm',
+    '【CipherLab】· 纯本地运算，文本不会上传。': '【CipherLab】 · Runs entirely locally; your text is never uploaded.',
+    'CipherLab · 密码实验室': 'CipherLab · Cryptography Lab',
+  });
+
+  /* 带数字或占位内容的动态文案，按顺序匹配 */
+  const I18N_PATTERNS = [
+    { pattern: /^第 (\d+) \/ (\d+) 题$/, build: (m) => 'Question ' + m[1] + ' of ' + m[2] },
+    { pattern: /^用时 ([\d:]+)$/, build: (m) => 'Time ' + m[1] },
+    { pattern: /^得分 (\d+)$/, build: (m) => 'Score ' + m[1] },
+    {
+      pattern: /^最高分：(\d+) 分 · ([\d:]+)$/,
+      build: (m) => 'Best: ' + m[1] + ' pts · ' + m[2],
+    },
+    {
+      pattern: /^答对 (\d+) \/ (\d+) 题 · 用时 ([\d:]+)$/,
+      build: (m) => m[1] + ' / ' + m[2] + ' correct · Time ' + m[3],
+    },
+    {
+      pattern: /^答对 (\d+) \/ (\d+) · 用时 ([\d:]+)$/,
+      build: (m) => m[1] + ' / ' + m[2] + ' correct · Time ' + m[3],
+    },
+    {
+      pattern: /^当前进度：第 (\d+) \/ (\d+) 题，已答对 (\d+) 题。终止后将结算本组挑战。$/,
+      build: (m) => 'Progress: question ' + m[1] + ' of ' + m[2] + ', ' + m[3] + ' correct. Leaving now scores this round.',
+    },
+    { pattern: /^移动量为 (.+)$/, build: (m) => 'Shift: ' + m[1] },
+    {
+      pattern: /^完整字符对照表（(\d+) 个字符）$/,
+      build: (m) => 'Full character table (' + m[1] + ' characters)',
+    },
+    {
+      pattern: /^完整 6×6 方阵（关键词 (.+)）$/,
+      build: (m) => 'Full 6×6 square (keyword ' + m[1] + ')',
+    },
+    {
+      pattern: /^关键词：(.+) \/ (.+)；I\/J 合并。$/,
+      build: (m) => 'Keywords: ' + m[1] + ' / ' + m[2] + '; I/J merged.',
+    },
+    {
+      pattern: /^关键词：(.+)；I\/J 合并，重复字母只保留一次。$/,
+      build: (m) => 'Keyword: ' + m[1] + '; I/J merged, duplicate letters kept once.',
+    },
+    { pattern: /^找到 (\d+) 个算法$/, build: (m) => 'Found ' + m[1] + ' algorithms' },
+    { pattern: /^共 (\d+) 个算法$/, build: (m) => m[1] + ' algorithms' },
+    {
+      pattern: /^没有与「(.+)」匹配的算法。试试$/,
+      build: (m) => 'No algorithm matches "' + m[1] + '". Try ',
+    },
+    { pattern: /^「(.+)」$/, build: (m) => '"' + translateCore(m[1]) + '"' },
+    { pattern: /^Combo x(\d+)！\+5分$/, build: (m) => 'Combo x' + m[1] + '! +5 pts' },
+    {
+      pattern: /^正确！Combo x(\d+)，本题得 (\d+) 分。$/,
+      build: (m) => 'Correct! Combo x' + m[1] + ', +' + m[2] + ' pts.',
+    },
+    { pattern: /^正确！本题得 (\d+) 分。$/, build: (m) => 'Correct! +' + m[1] + ' pts.' },
+    {
+      pattern: /^页面初始化失败：(.+)。请使用最新版 Chrome \/ Edge \/ Firefox 打开，并按 Ctrl\+F5 强制刷新。$/,
+      build: (m) => 'Page failed to start: ' + m[1] + '. Open it in a recent Chrome / Edge / Firefox and press Ctrl+F5 to force a reload.',
+    },
+    { pattern: /^([A-Z]{1,2})=(.+)$/, build: (m) => m[1] + ' = ' + translateCore(m[2]) },
+  ];
+
+  let currentLang = 'zh';
+  let i18nObserver = null;
+  let i18nApplying = false;
+  const i18nTextOrigin = new WeakMap();
+  const i18nTextWritten = new WeakMap();
+  const i18nAttrOrigin = new WeakMap();
+  const i18nAttrWritten = new WeakMap();
+
+  function getLang() {
+    return currentLang;
+  }
+
+  function isEnglish() {
+    return currentLang === 'en';
+  }
+
+  function readStoredLang() {
+    try {
+      const saved = window.localStorage.getItem(LANG_STORAGE_KEY);
+      return SUPPORTED_LANGS.indexOf(saved) >= 0 ? saved : 'zh';
+    } catch (error) {
+      return 'zh';
+    }
+  }
+
+  function storeLang(lang) {
+    try {
+      window.localStorage.setItem(LANG_STORAGE_KEY, lang);
+    } catch (error) {
+      /* 隐私模式下无法写入，忽略即可。 */
+    }
+  }
+
+  /**
+   * 翻译一段文案；中文模式下原样返回。
+   * @param {string} text
+   * @returns {string}
+   */
+  function t(text) {
+    if (text === null || text === undefined) {
+      return text;
+    }
+
+    const source = String(text);
+
+    if (!isEnglish()) {
+      return source;
+    }
+
+    return translateText(source);
+  }
+
+  function translateText(source) {
+    const parts = /^(\s*)([\s\S]*?)(\s*)$/.exec(source);
+
+    if (!parts) {
+      return source;
+    }
+
+    const head = parts[1];
+    const core = parts[2];
+    const tail = parts[3];
+
+    if (!core) {
+      return source;
+    }
+
+    if (!isTranslatableText(core)) {
+      return source;
+    }
+
+    return head + translateCore(core) + tail;
+  }
+
+  function translateCore(core) {
+    if (Object.prototype.hasOwnProperty.call(I18N_PUNCTUATION, core)) {
+      return I18N_PUNCTUATION[core];
+    }
+
+    if (Object.prototype.hasOwnProperty.call(I18N_EN, core)) {
+      return I18N_EN[core];
+    }
+
+    for (let index = 0; index < I18N_PATTERNS.length; index += 1) {
+      const rule = I18N_PATTERNS[index];
+      const match = rule.pattern.exec(core);
+
+      if (match) {
+        return rule.build(match);
+      }
+    }
+
+    if (core.indexOf(' · ') >= 0) {
+      return core.split(' · ').map((part) => translateCore(part)).join(' · ');
+    }
+
+    const colon = /^([^：]{1,16})：([\s\S]*)$/.exec(core);
+
+    if (colon && Object.prototype.hasOwnProperty.call(I18N_EN, colon[1])) {
+      return I18N_EN[colon[1]] + ': ' + translateCore(colon[2]);
+    }
+
+    const bracket = /^([^「」]{1,24})「([\s\S]*?)」$/.exec(core);
+
+    if (bracket && Object.prototype.hasOwnProperty.call(I18N_EN, bracket[1])) {
+      return I18N_EN[bracket[1]] + ' "' + translateCore(bracket[2]) + '"';
+    }
+
+    const paren = /^([^（）]{1,16})（([\s\S]*)）$/.exec(core);
+
+    if (paren && Object.prototype.hasOwnProperty.call(I18N_EN, paren[1])) {
+      return I18N_EN[paren[1]] + ' (' + translateCore(paren[2]) + ')';
+    }
+
+    return core;
+  }
+
+  function shouldSkipTextNode(node) {
+    const parent = node.parentElement;
+
+    if (!parent) {
+      return true;
+    }
+
+    if (I18N_SKIP_TAGS.has(parent.tagName)) {
+      return true;
+    }
+
+    return Boolean(parent.closest('[data-i18n-skip]'));
+  }
+
+  function localizeTextNode(node) {
+    if (!node || node.nodeType !== 3 || shouldSkipTextNode(node)) {
+      return;
+    }
+
+    const raw = node.nodeValue === null || node.nodeValue === undefined ? '' : node.nodeValue;
+    const written = i18nTextWritten.get(node);
+
+    if (!isEnglish()) {
+      if (written !== undefined && raw === written) {
+        const origin = i18nTextOrigin.get(node);
+
+        if (origin !== undefined) {
+          node.nodeValue = origin;
+        }
+
+        i18nTextWritten.delete(node);
+        return;
+      }
+
+      i18nTextOrigin.set(node, raw);
+      return;
+    }
+
+    if (written === undefined || raw !== written) {
+      i18nTextOrigin.set(node, raw);
+    }
+
+    const source = i18nTextOrigin.get(node);
+
+    if (!isTranslatableText(source)) {
+      i18nTextWritten.delete(node);
+      return;
+    }
+
+    const output = translateText(source);
+
+    if (output === source) {
+      i18nTextWritten.delete(node);
+      return;
+    }
+
+    if (raw !== output) {
+      node.nodeValue = output;
+    }
+
+    i18nTextWritten.set(node, output);
+  }
+
+  function localizeElementAttributes(element) {
+    if (!element || element.nodeType !== 1) {
+      return;
+    }
+
+    let origins = i18nAttrOrigin.get(element);
+    let writtenMap = i18nAttrWritten.get(element);
+
+    for (let index = 0; index < I18N_ATTRIBUTES.length; index += 1) {
+      const attribute = I18N_ATTRIBUTES[index];
+
+      if (attribute === 'content' && element.tagName !== 'META') {
+        continue;
+      }
+
+      if (!element.hasAttribute(attribute)) {
+        continue;
+      }
+
+      const raw = element.getAttribute(attribute);
+      const written = writtenMap ? writtenMap.get(attribute) : undefined;
+
+      if (!isEnglish()) {
+        if (written !== undefined && raw === written && origins) {
+          const origin = origins.get(attribute);
+
+          if (origin !== undefined) {
+            element.setAttribute(attribute, origin);
+          }
+
+          writtenMap.delete(attribute);
+          continue;
+        }
+
+        if (!origins) {
+          origins = new Map();
+          i18nAttrOrigin.set(element, origins);
+        }
+
+        origins.set(attribute, raw);
+        continue;
+      }
+
+      if (!origins) {
+        origins = new Map();
+        i18nAttrOrigin.set(element, origins);
+      }
+
+      if (written === undefined || raw !== written) {
+        origins.set(attribute, raw);
+      }
+
+      const source = origins.get(attribute);
+
+      if (!CJK_PATTERN.test(source)) {
+        continue;
+      }
+
+      const output = translateText(source);
+
+      if (output === source) {
+        continue;
+      }
+
+      if (raw !== output) {
+        element.setAttribute(attribute, output);
+      }
+
+      if (!writtenMap) {
+        writtenMap = new Map();
+        i18nAttrWritten.set(element, writtenMap);
+      }
+
+      writtenMap.set(attribute, output);
+    }
+  }
+
+  function localizeTree(root) {
+    if (!root) {
+      return;
+    }
+
+    if (root.nodeType === 3) {
+      localizeTextNode(root);
+      return;
+    }
+
+    if (root.nodeType !== 1 && root.nodeType !== 9 && root.nodeType !== 11) {
+      return;
+    }
+
+    if (root.nodeType === 1) {
+      localizeElementAttributes(root);
+    }
+
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT);
+    let node = walker.nextNode();
+
+    while (node) {
+      if (node.nodeType === 3) {
+        localizeTextNode(node);
+      } else {
+        localizeElementAttributes(node);
+      }
+
+      node = walker.nextNode();
+    }
+  }
+
+  /**
+   * 英文界面下隐藏与主标题重复的副标题（例如“Atbash / Atbash”）。
+   */
+  function syncI18nStructure() {
+    const english = isEnglish();
+
+    document.querySelectorAll('.guide-detail').forEach((detail) => {
+      const name = detail.querySelector('.guide-detail__name');
+      const secondary = detail.querySelector('.guide-detail__english');
+
+      if (!name || !secondary) {
+        return;
+      }
+
+      const duplicated = name.textContent.trim().toLowerCase()
+        === secondary.textContent.trim().toLowerCase();
+      secondary.hidden = english && duplicated;
+    });
+
+    document.querySelectorAll('.guide-item').forEach((item) => {
+      const name = item.querySelector('.guide-item__name');
+      const secondary = item.querySelector('.guide-item__english');
+
+      if (!name || !secondary) {
+        return;
+      }
+
+      const duplicated = name.textContent.trim().toLowerCase()
+        === secondary.textContent.trim().toLowerCase();
+      secondary.hidden = english && duplicated;
+    });
+  }
+
+  function buildLangMenu() {
+    const menu = document.getElementById('lang-menu');
+
+    if (!menu) {
+      return;
+    }
+
+    const labels = LANG_LABELS[currentLang];
+    clearElement(menu);
+
+    SUPPORTED_LANGS.forEach((lang) => {
+      const item = document.createElement('li');
+      item.setAttribute('role', 'presentation');
+
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'lang-menu__item';
+      button.dataset.lang = lang;
+      button.setAttribute('role', 'option');
+      button.setAttribute('aria-selected', String(lang === currentLang));
+      button.classList.toggle('is-active', lang === currentLang);
+
+      const name = document.createElement('span');
+      name.className = 'lang-menu__name';
+      name.textContent = labels.items[lang];
+
+      const check = document.createElement('span');
+      check.className = 'lang-menu__check';
+      check.setAttribute('aria-hidden', 'true');
+      check.textContent = '✓';
+
+      button.append(name, check);
+      item.append(button);
+      menu.append(item);
+    });
+  }
+
+  function syncLangSwitch() {
+    const button = document.getElementById('lang-switch-button');
+    const label = document.getElementById('lang-switch-label');
+    const code = document.getElementById('lang-switch-code');
+    const menu = document.getElementById('lang-menu');
+    const labels = LANG_LABELS[currentLang];
+
+    if (label) {
+      label.textContent = labels.name;
+    }
+
+    if (code) {
+      code.textContent = labels.code;
+    }
+
+    if (button) {
+      button.setAttribute('aria-label', labels.name);
+      button.setAttribute('title', labels.name);
+      button.setAttribute('aria-expanded', String(Boolean(menu && !menu.hidden)));
+    }
+  }
+
+  function setLangMenuOpen(open) {
+    const menu = document.getElementById('lang-menu');
+    const button = document.getElementById('lang-switch-button');
+
+    if (!menu) {
+      return;
+    }
+
+    menu.hidden = !open;
+
+    if (button) {
+      button.setAttribute('aria-expanded', String(Boolean(open)));
+    }
+  }
+
+  function closeLangMenu() {
+    setLangMenuOpen(false);
+  }
+
+  function bindLangSwitch() {
+    const button = document.getElementById('lang-switch-button');
+    const menu = document.getElementById('lang-menu');
+
+    if (!button || !menu) {
+      return;
+    }
+
+    button.addEventListener('click', (event) => {
+      event.stopPropagation();
+      setLangMenuOpen(menu.hidden);
+    });
+
+    menu.addEventListener('click', (event) => {
+      const target = event.target.closest('button[data-lang]');
+
+      if (!target) {
+        return;
+      }
+
+      event.stopPropagation();
+      setLang(target.dataset.lang);
+    });
+
+    document.addEventListener('click', (event) => {
+      if (menu.hidden) {
+        return;
+      }
+
+      if (!event.target.closest('.lang-switch')) {
+        closeLangMenu();
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape' || menu.hidden) {
+        return;
+      }
+
+      closeLangMenu();
+      button.focus();
+    });
+  }
+
+  function applyLanguage() {
+    i18nApplying = true;
+
+    try {
+      document.documentElement.lang = isEnglish() ? 'en' : 'zh-CN';
+      localizeTree(document.documentElement);
+      syncI18nStructure();
+      buildLangMenu();
+      syncLangSwitch();
+    } finally {
+      if (i18nObserver) {
+        i18nObserver.takeRecords();
+      }
+
+      i18nApplying = false;
+    }
+  }
+
+  /**
+   * 切换界面语言并记住选择。
+   * @param {'zh'|'en'} lang
+   */
+  function setLang(lang) {
+    const next = SUPPORTED_LANGS.indexOf(lang) >= 0 ? lang : 'zh';
+    const changed = next !== currentLang;
+
+    currentLang = next;
+    storeLang(next);
+    closeLangMenu();
+    applyLanguage();
+
+    if (!changed) {
+      return;
+    }
+
+    try {
+      if (currentRoute === 'game' && dom.gameLobby && !dom.gameLobby.hidden) {
+        GameModule.onEnter();
+      }
+    } catch (error) {
+      /* 游戏模块尚未初始化时忽略。 */
+    }
+  }
+
+  function startI18nObserver() {
+    if (i18nObserver || typeof MutationObserver !== 'function') {
+      return;
+    }
+
+    i18nObserver = new MutationObserver((records) => {
+      if (i18nApplying) {
+        return;
+      }
+
+      i18nApplying = true;
+
+      try {
+        for (let index = 0; index < records.length; index += 1) {
+          const record = records[index];
+
+          if (record.type === 'characterData') {
+            localizeTextNode(record.target);
+          } else if (record.type === 'childList') {
+            record.addedNodes.forEach((node) => localizeTree(node));
+          } else if (record.type === 'attributes') {
+            localizeElementAttributes(record.target);
+          }
+        }
+      } finally {
+        i18nObserver.takeRecords();
+        i18nApplying = false;
+      }
+    });
+
+    i18nObserver.observe(document.documentElement, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+      attributes: true,
+      attributeFilter: I18N_ATTRIBUTES,
+    });
+  }
+
   const dom = {
     siteMain: document.getElementById('site-main'),
     navLinks: Array.from(document.querySelectorAll('.site-nav a[data-route]')),
@@ -3149,14 +4293,19 @@
   function createGuideListItem(entry) {
     const item = document.createElement('li');
     const button = createElement('button', 'guide-item');
-    const secondary = entry.english !== entry.name ? entry.english : entry.type;
+    const secondaryIsName = entry.english !== entry.name;
+    const secondary = secondaryIsName ? entry.english : entry.type;
 
     button.type = 'button';
     button.dataset.guideId = entry.id;
     button.setAttribute('aria-controls', 'guide-detail');
     button.setAttribute('aria-pressed', 'false');
     button.append(createElement('span', 'guide-item__name', entry.name));
-    button.append(createElement('span', 'guide-item__english', secondary));
+    button.append(createElement(
+      'span',
+      secondaryIsName ? 'guide-item__english is-name' : 'guide-item__english',
+      secondary,
+    ));
     item.append(button);
 
     return item;
@@ -3439,7 +4588,7 @@
     title.append(createElement('span', 'guide-detail__name', entry.name));
 
     if (entry.english !== entry.name) {
-      title.append(createElement('span', 'guide-detail__english', entry.english));
+      title.append(createElement('span', 'guide-detail__english is-name', entry.english));
     }
 
     header.append(title);
@@ -4572,10 +5721,11 @@
       clearLobbyTimers();
 
       const story = dom.gameLobbyStory;
+      const localizedText = t(text);
       story.textContent = '';
       story.classList.remove('is-typing');
 
-      if (!text) {
+      if (!localizedText) {
         if (typeof onDone === 'function') {
           onDone();
         }
@@ -4583,7 +5733,7 @@
       }
 
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        story.textContent = text;
+        story.textContent = localizedText;
 
         if (typeof onDone === 'function') {
           onDone();
@@ -4596,9 +5746,9 @@
 
       const tick = () => {
         index += 1;
-        story.textContent = text.slice(0, index);
+        story.textContent = localizedText.slice(0, index);
 
-        if (index < text.length) {
+        if (index < localizedText.length) {
           state.storyTypeId = window.setTimeout(tick, STORY_TYPE_DELAY);
           return;
         }
@@ -5189,6 +6339,11 @@
 
 
   function init() {
+    currentLang = readStoredLang();
+    buildLangMenu();
+    bindLangSwitch();
+    document.documentElement.lang = isEnglish() ? 'en' : 'zh-CN';
+
     updateKeyVisibility();
     bindEvents();
     updateCategoryFilter();
@@ -5199,6 +6354,8 @@
     updateBrailleTextStyles();
     updateMatrixPanel();
     initStarfield();
+    startI18nObserver();
+    applyLanguage();
   }
 
   try {

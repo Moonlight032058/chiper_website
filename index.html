@@ -8,7 +8,7 @@
   <meta name="description" content="【CipherLab】密码实验室：20 种经典密码与编码，支持本地加解密、破译挑战与完整密码图鉴。">
   <title>【CipherLab】· 破译未知密文，洞悉隐秘真相。</title>
   <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="style.css?v=2.4.2">
+  <link rel="stylesheet" href="style.css?v=2.4.3">
 </head>
 <body>
   <canvas class="starfield" id="starfield" aria-hidden="true"></canvas>
@@ -39,6 +39,16 @@
         <a href="#/game" data-route="game">破译</a>
         <a href="#/guide" data-route="guide">说明</a>
       </nav>
+
+      <div class="lang-switch" id="lang-switch">
+        <button type="button" class="lang-switch__button" id="lang-switch-button" aria-haspopup="listbox" aria-expanded="false" aria-label="语言" title="语言">
+          <span class="lang-switch__icon" aria-hidden="true">🌐</span>
+          <span class="lang-switch__label" id="lang-switch-label">语言</span>
+          <span class="lang-switch__code" id="lang-switch-code">中</span>
+          <span class="lang-switch__caret" aria-hidden="true"></span>
+        </button>
+        <ul class="lang-menu" id="lang-menu" role="listbox" aria-label="选择语言" hidden></ul>
+      </div>
     </div>
   </header>
 
@@ -579,8 +589,8 @@
     </section>
   </main>
 
-  <footer class="site-footer">【CipherLab】· 纯本地运算，文本不会上传。 <span class="app-version">v2.4.2</span></footer>
+  <footer class="site-footer">【CipherLab】· 纯本地运算，文本不会上传。 <span class="app-version">v2.4.3</span></footer>
 
-  <script src="app.js?v=2.4.2" defer></script>
+  <script src="app.js?v=2.4.3" defer></script>
 </body>
 </html>
