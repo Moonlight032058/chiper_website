@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0a0f1c">
+  <meta name="description" content="【CipherLab】密码实验室：20 种经典密码与编码，支持本地加解密、破译挑战与完整密码图鉴。">
+  <title>【CipherLab】· 破译未知密文，洞悉隐秘真相。</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="style.css?v=2.4.2">
+</head>
+<body>
+  <canvas class="starfield" id="starfield" aria-hidden="true"></canvas>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="#/home" aria-label="CipherLab 首页">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 40 40" focusable="false">
+            <defs>
+              <linearGradient id="cl-mark-gradient" x1="6" y1="4" x2="34" y2="36">
+                <stop offset="0" stop-color="#8dc4ff"></stop>
+                <stop offset="1" stop-color="#4f8ef7"></stop>
+              </linearGradient>
+            </defs>
+            <path d="M29 9.5A13 13 0 1 0 29 30.5" fill="none" stroke="url(#cl-mark-gradient)" stroke-width="3.4" stroke-linecap="round"></path>
+            <circle cx="20" cy="20" r="3.9" fill="none" stroke="#8dc4ff" stroke-width="2.2"></circle>
+            <path d="M20 23.9V30" fill="none" stroke="#8dc4ff" stroke-width="2.2" stroke-linecap="round"></path>
+          </svg>
+        </span>
+        <span class="brand-name"><span class="brand-bracket" aria-hidden="true">【</span>CipherLab<span class="brand-bracket" aria-hidden="true">】</span></span>
+      </a>
+
+      <nav class="site-nav" aria-label="主导航">
+        <a href="#/home" data-route="home" aria-current="page">首页</a>
+        <a href="#/encrypt" data-route="encrypt">加密</a>
+        <a href="#/decrypt" data-route="decrypt">解密</a>
+        <a href="#/game" data-route="game">破译</a>
+        <a href="#/guide" data-route="guide">说明</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main" id="site-main" tabindex="-1">
+    <noscript>
+      <p class="noscript" role="alert">本工具需要启用 JavaScript 才能切换栏目和加解密，请启用后刷新页面。</p>
+    </noscript>
+
+    <p class="app-error" id="app-error" role="alert" hidden></p>
+
+    <!-- ==================== 首页 ==================== -->
+    <section class="view view-home" data-view="home" aria-labelledby="home-title">
+      <div class="view-inner home-console">
+        <div class="home-atmosphere" aria-hidden="true">
+          <div class="code-rain">
+            <span>0110 1011 0101</span>
+            <span>1001 0110 1100</span>
+            <span>0101 0011 1010</span>
+            <span>1100 1010 0111</span>
+            <span>0011 0101 1100</span>
+            <span>1011 0010 0110</span>
+            <span>0100 1110 1001</span>
+            <span>1110 0101 0011</span>
+            <span>0010 1101 1010</span>
+            <span>1000 0111 1101</span>
+          </div>
+          <div class="home-atmosphere__vignette"></div>
+        </div>
+
+        <header class="home-hero">
+          <p class="eyebrow">CipherLab · 密码实验室</p>
+          <h1 id="home-title" class="hero-slogan">欢迎，侦探。</h1>
+          <p class="hero-sub">20 种经典密码与编码 · 10 题破译挑战 · 纯本地运算</p>
+        </header>
+
+        <div class="home-console__actions">
+          <a class="home-cta" href="#/game">
+            <span class="home-cta__corner" aria-hidden="true">【</span>
+            <span class="home-cta__text">密文破译</span>
+            <span class="home-cta__corner" aria-hidden="true">】</span>
+            <span class="home-cta__arrow" aria-hidden="true">→</span>
+          </a>
+          <p class="home-cta__note">进入破译挑战 · 每组 10 题</p>
+
+          <div class="home-secondary">
+            <a class="home-secondary__card edge-glow" href="#/encrypt">
+              <span class="home-secondary__icon" aria-hidden="true">🔐</span>
+              <span class="home-secondary__body">
+                <strong>快速加密</strong>
+                <small>输入明文，实时生成密文</small>
+              </span>
+              <span class="home-secondary__arrow" aria-hidden="true">→</span>
+            </a>
+
+            <a class="home-secondary__card edge-glow" href="#/guide">
+              <span class="home-secondary__icon" aria-hidden="true">📖</span>
+              <span class="home-secondary__body">
+                <strong>密码图鉴</strong>
+                <small>查阅算法、规则与对照表</small>
+              </span>
+              <span class="home-secondary__arrow" aria-hidden="true">→</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="algorithm-marquee" aria-label="支持算法，点击可进入加密并选中算法">
+          <div class="algorithm-marquee__head">
+            <span>SUPPORTED CIPHERS</span>
+            <span>20 种算法</span>
+          </div>
+
+          <div class="algorithm-marquee__viewport">
+            <div class="marquee-track">
+              <div class="marquee-group">
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="a1z26">A1Z26</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="adfgvx">ADFGVX</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="affine">仿射</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="ascii">ASCII</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="atbash">Atbash</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="bacon">培根</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="beaufort">博福特</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="braille">盲文</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="caesar">凯撒</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="foursquare">四方</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="morse">摩斯</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="pigpen">猪圈</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="playfair">普莱费尔</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="polybius">波利比奥斯</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="railfence">栅栏</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="rot13">ROT13</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="route">路径</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="semaphore">旗语</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="twosquare">二方</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="vigenere">维吉尼亚</a>
+              </div>
+
+              <div class="marquee-group" aria-hidden="true">
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="a1z26" tabindex="-1">A1Z26</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="adfgvx" tabindex="-1">ADFGVX</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="affine" tabindex="-1">仿射</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="ascii" tabindex="-1">ASCII</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="atbash" tabindex="-1">Atbash</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="bacon" tabindex="-1">培根</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="beaufort" tabindex="-1">博福特</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="braille" tabindex="-1">盲文</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="caesar" tabindex="-1">凯撒</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="foursquare" tabindex="-1">四方</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="morse" tabindex="-1">摩斯</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="pigpen" tabindex="-1">猪圈</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="playfair" tabindex="-1">普莱费尔</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="polybius" tabindex="-1">波利比奥斯</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="railfence" tabindex="-1">栅栏</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="rot13" tabindex="-1">ROT13</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="route" tabindex="-1">路径</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="semaphore" tabindex="-1">旗语</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="twosquare" tabindex="-1">二方</a>
+                <a class="algorithm-tag" href="#/encrypt" data-algorithm="vigenere" tabindex="-1">维吉尼亚</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 加密 / 解密共用工作区 ==================== -->
+    <section class="view view-tool" data-view="tool" aria-labelledby="tool-title" hidden>
+      <div class="view-inner">
+        <header class="view-header">
+          <h1 id="tool-title">加密</h1>
+          <p class="view-description" id="tool-description">输入即实时加密，明文与密文并排对照。</p>
+        </header>
+
+        <div class="tool-card edge-glow">
+          <!-- 算法选择 -->
+          <div class="field">
+            <label for="algorithm">算法</label>
+            <select id="algorithm" name="algorithm">
+              <option value="a1z26">A1Z26</option>
+              <option value="adfgvx">ADFGVX 密码</option>
+              <option value="affine">仿射密码（Affine）</option>
+              <option value="ascii">ASCII 码替换（ASCII）</option>
+              <option value="atbash">埃特巴什码（Atbash）</option>
+              <option value="bacon">培根密码（Bacon）</option>
+              <option value="beaufort">博福特密码（Beaufort）</option>
+              <option value="braille">盲文（Braille）</option>
+              <option value="caesar" selected>凯撒密码（Caesar）</option>
+              <option value="foursquare">四方密码（Four-square）</option>
+              <option value="morse">摩斯密码（Morse）</option>
+              <option value="pigpen">猪圈密码（Pigpen）</option>
+              <option value="playfair">普莱费尔密码（Playfair）</option>
+              <option value="polybius">波利比奥斯（Polybius）</option>
+              <option value="railfence">栅栏密码（Rail Fence）</option>
+              <option value="rot13">ROT13</option>
+              <option value="route">路径密码（Route）</option>
+              <option value="semaphore">旗语（Semaphore）</option>
+              <option value="twosquare">二方密码（Two-square）</option>
+              <option value="vigenere">维吉尼亚密码（Vigenère）</option>
+            </select>
+          </div>
+
+          <!-- 凯撒密钥 -->
+          <div class="field key-group" id="caesar-key-field">
+            <label for="caesar-key">凯撒位移量</label>
+            <input
+              class="number-input"
+              id="caesar-key"
+              name="caesar-key"
+              type="number"
+              min="1"
+              max="25"
+              step="1"
+              value="3"
+              inputmode="numeric"
+              autocomplete="off"
+              aria-describedby="key-hint"
+            >
+            <p class="hint" id="key-hint">1–25 的整数，加密时字母向后位移。</p>
+          </div>
+
+          <!-- 仿射密钥 -->
+          <div class="field key-group" id="affine-key-field" hidden>
+            <div class="key-grid">
+              <div class="key-cell">
+                <label for="affine-a">系数 a</label>
+                <input
+                  class="number-input"
+                  id="affine-a"
+                  name="affine-a"
+                  type="number"
+                  min="1"
+                  max="25"
+                  step="1"
+                  value="5"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  aria-describedby="affine-hint"
+                >
+              </div>
+              <div class="key-cell">
+                <label for="affine-b">偏移 b</label>
+                <input
+                  class="number-input"
+                  id="affine-b"
+                  name="affine-b"
+                  type="number"
+                  min="0"
+                  max="25"
+                  step="1"
+                  value="8"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  aria-describedby="affine-hint"
+                >
+              </div>
+            </div>
+            <p class="hint" id="affine-hint">a 必须与 26 互质（1、3、5、7、9、11、15、17、19、21、23、25），b 为 0–25 的整数。</p>
+          </div>
+
+          <!-- 关键词密钥 -->
+          <div class="field key-group" id="keyword-field" hidden>
+            <label for="keyword">密钥单词</label>
+            <input
+              id="keyword"
+              name="keyword"
+              type="text"
+              value="LEMON"
+              autocomplete="off"
+              spellcheck="false"
+              autocapitalize="off"
+              aria-describedby="keyword-hint"
+            >
+            <p class="hint" id="keyword-hint">仅英文字母；非字母不消耗密钥。</p>
+          </div>
+
+          <!-- 双关键词：四方密码 / 二方密码 -->
+          <div class="field key-group" id="two-keyword-field" hidden>
+            <div class="key-grid">
+              <div class="key-cell">
+                <label for="keyword-1">关键词 1</label>
+                <input
+                  id="keyword-1"
+                  name="keyword-1"
+                  type="text"
+                  value="EXAMPLE"
+                  autocomplete="off"
+                  spellcheck="false"
+                  autocapitalize="off"
+                  aria-describedby="two-keyword-hint"
+                >
+              </div>
+              <div class="key-cell">
+                <label for="keyword-2">关键词 2</label>
+                <input
+                  id="keyword-2"
+                  name="keyword-2"
+                  type="text"
+                  value="MONARCHY"
+                  autocomplete="off"
+                  spellcheck="false"
+                  autocapitalize="off"
+                  aria-describedby="two-keyword-hint"
+                >
+              </div>
+            </div>
+            <p class="hint" id="two-keyword-hint">两个关键词仅英文字母；I/J 合并，重复字母忽略。</p>
+          </div>
+
+          <!-- 栅栏数 -->
+          <div class="field key-group" id="rail-field" hidden>
+            <label for="rail-count">栅栏数</label>
+            <input
+              class="number-input"
+              id="rail-count"
+              name="rail-count"
+              type="number"
+              min="2"
+              max="20"
+              step="1"
+              value="3"
+              inputmode="numeric"
+              autocomplete="off"
+              aria-describedby="rail-hint"
+            >
+            <p class="hint" id="rail-hint">2–20 条栅栏；空格和标点也参与换位。</p>
+          </div>
+
+          <!-- 路径密码列数 -->
+          <div class="field key-group" id="route-field" hidden>
+            <label for="route-columns">矩阵列数</label>
+            <input
+              class="number-input"
+              id="route-columns"
+              name="route-columns"
+              type="number"
+              min="2"
+              max="10"
+              step="1"
+              value="4"
+              inputmode="numeric"
+              autocomplete="off"
+              aria-describedby="route-hint"
+            >
+            <p class="hint" id="route-hint">2–10 列；按行填入，顺时针螺旋读取；空格和标点参与。</p>
+          </div>
+
+          <!-- 无密钥算法提示 -->
+          <p class="hint no-key-note" id="no-key-note" hidden>该算法无需密钥，直接输入文本即可。</p>
+
+          <!-- 错误提示 -->
+          <p class="error" id="error-region" role="alert" aria-atomic="true" hidden></p>
+
+          <!-- 明文 / 密文并列工作区 -->
+          <div class="cipher-columns">
+            <div class="cipher-pane">
+              <div class="pane-head">
+                <label for="input-text" id="input-label">输入明文</label>
+                <div class="pane-head__tools">
+                  <span class="live-badge">实时</span>
+                  <button type="button" class="btn btn-ghost btn-small" id="clear-input" title="清空输入文本" aria-label="清空输入文本">清空</button>
+                </div>
+              </div>
+              <textarea
+                id="input-text"
+                name="input-text"
+                rows="10"
+                placeholder="在此输入要加密的明文…"
+                spellcheck="false"
+                autocomplete="off"
+                autocapitalize="off"
+              ></textarea>
+            </div>
+
+            <section class="cipher-pane output" aria-labelledby="output-label">
+              <div class="pane-head">
+                <label id="output-label" for="output-text">密文结果</label>
+                <button type="button" class="btn btn-ghost btn-small" id="copy-btn" aria-live="polite" disabled>复制结果</button>
+              </div>
+              <textarea
+                id="output-text"
+                name="output-text"
+                rows="10"
+                readonly
+                placeholder="加密结果将显示在这里"
+                spellcheck="false"
+              ></textarea>
+            </section>
+          </div>
+
+          <!-- 矩阵替换型密码的加密方阵 -->
+          <section class="matrix-panel" id="matrix-panel" aria-label="加密方阵" hidden></section>
+        </div>
+
+        <!-- 最近五次加密 / 解密记录 -->
+        <section class="history-panel edge-glow" id="history-panel" aria-labelledby="history-title">
+          <div class="history-head">
+            <div>
+              <h2 id="history-title">最近记录</h2>
+              <p>自动保存最近 5 次加密或解密</p>
+            </div>
+            <button type="button" class="btn btn-ghost btn-small" id="history-clear" disabled>清空记录</button>
+          </div>
+          <p class="history-empty" id="history-empty">还没有记录，输入文本后会自动生成。</p>
+          <ol class="history-list" id="history-list" hidden></ol>
+        </section>
+      </div>
+    </section>
+    <section class="view view-game" data-view="game" aria-labelledby="game-title" hidden>
+      <div class="view-inner">
+        <header class="view-header">
+          <p class="eyebrow">密码破译</p>
+          <h1 id="game-title">破译</h1>
+          <p class="view-description">每组 10 道随机谜题，选择难度开始挑战。</p>
+        </header>
+
+        <section class="game-lobby edge-glow" id="game-lobby" hidden>
+          <div class="game-lobby__head">
+            <p class="game-lobby__kicker">挑战模式</p>
+            <h2 class="game-lobby__title">选择难度</h2>
+            <p class="game-lobby__desc">每组 10 道随机题，同一组明文不重复；确认开始后计时。</p>
+          </div>
+
+          <p class="game-lobby__story" id="game-lobby-story"></p>
+
+          <div class="game-lobby__panel">
+            <div class="game-difficulty-cards" id="game-start-difficulties" role="group" aria-label="难度选择">
+              <button type="button" class="game-start-difficulty is-active" data-difficulty="easy" aria-pressed="true">
+                <strong>简单</strong>
+                <span>无密钥 / 无提示</span>
+                <span class="game-record" id="game-record-easy">最高分：暂无纪录</span>
+              </button>
+              <button type="button" class="game-start-difficulty" data-difficulty="medium" aria-pressed="false">
+                <strong>中等</strong>
+                <span>仿射 / 凯撒</span>
+                <span class="game-record" id="game-record-medium">最高分：暂无纪录</span>
+              </button>
+              <button type="button" class="game-start-difficulty" data-difficulty="hard" aria-pressed="false">
+                <strong>困难</strong>
+                <span>多表 / 矩阵 / ADFGVX</span>
+                <span class="game-record" id="game-record-hard">最高分：暂无纪录</span>
+              </button>
+            </div>
+            <button type="button" class="btn btn-outline game-action-btn game-start-button" id="game-start-btn">开始挑战</button>
+          </div>
+        </section>
+
+        <section class="game-card edge-glow" id="game-card" aria-labelledby="game-puzzle-title" hidden>
+          <div class="game-topline">
+            <span class="game-difficulty-label" id="game-difficulty-label">简单</span>
+            <span class="game-progress" id="game-progress">第 1 / 10 题</span>
+            <span class="game-timer" id="game-timer">用时 00:00</span>
+            <span class="game-score" id="game-score">得分 0</span>
+            <span class="game-state" id="game-state">推理中</span>
+          </div>
+          <h2 class="game-puzzle-title" id="game-puzzle-title">解开这段密文</h2>
+          <div class="game-hint-block">
+            <p class="game-hint" id="game-hint">提示：无密钥算法</p>
+            <p class="game-hint-detail" id="game-hint-detail" role="status" aria-live="polite" hidden></p>
+          </div>
+
+          <div class="game-cipher-block">
+            <p class="game-cipher-label">密文</p>
+            <pre class="game-cipher"><code id="game-cipher"></code></pre>
+          </div>
+
+          <div class="game-answer">
+            <label for="game-answer">你的答案</label>
+            <input
+              id="game-answer"
+              name="game-answer"
+              type="text"
+              placeholder="输入你还原出的明文"
+              autocomplete="off"
+              spellcheck="false"
+              autocapitalize="characters"
+            >
+            <p class="hint">忽略大小写、空格和标点。</p>
+          </div>
+
+          <details class="game-scratch" id="game-scratch">
+            <summary>🛠️ 尝试解密/演算草稿</summary>
+            <div class="game-scratch__body">
+              <div class="game-scratch__row">
+                <label for="game-scratch-algorithm">算法</label>
+                <select id="game-scratch-algorithm"></select>
+              </div>
+              <div class="game-scratch__row">
+                <label for="game-scratch-key">密钥</label>
+                <input id="game-scratch-key" type="text" autocomplete="off" spellcheck="false" autocapitalize="off">
+              </div>
+              <p class="hint" id="game-scratch-hint"></p>
+              <button type="button" class="btn btn-outline game-action-btn" id="game-scratch-run">试算</button>
+              <p class="game-scratch__error" id="game-scratch-error" role="status" hidden></p>
+              <textarea id="game-scratch-result" rows="4" readonly placeholder="试算结果会显示在这里"></textarea>
+              <p class="hint">草稿结果仅供验证思路，不会自动提交答案。</p>
+            </div>
+          </details>
+
+          <p class="game-feedback" id="game-feedback" role="status" aria-live="polite" hidden></p>
+
+          <div class="game-actions">
+            <button type="button" class="btn btn-outline game-action-btn" id="game-hint-btn">提示</button>
+            <button type="button" class="btn btn-outline game-action-btn" id="game-submit">提交答案</button>
+            <button type="button" class="btn btn-outline game-action-btn" id="game-giveup">放弃</button>
+            <button type="button" class="btn btn-outline game-action-btn" id="game-next">下一题</button>
+          </div>
+
+          <div class="game-result" id="game-result" aria-live="polite" hidden></div>
+          <div class="combo-pop" id="combo-pop" aria-live="polite" hidden></div>
+        </section>
+
+        <section class="game-summary edge-glow" id="game-summary" hidden>
+          <p class="game-summary__kicker" id="game-summary-kicker">挑战完成</p>
+          <h2 class="game-summary__title">本组结果</h2>
+          <p class="game-perfect-badge" id="game-perfect-badge" hidden>完美通关</p>
+          <p class="game-summary__score"><strong id="game-summary-score">0</strong><span> 分</span></p>
+          <p class="game-summary__detail" id="game-summary-detail">答对 0 / 10 · 用时 00:00</p>
+          <div class="game-actions game-summary__actions">
+            <button type="button" class="btn btn-outline game-action-btn" id="game-restart">再来一组</button>
+            <button type="button" class="btn btn-outline game-action-btn" id="game-change-difficulty">重新选择难度</button>
+            <button type="button" class="btn btn-outline game-action-btn game-summary__leave" id="game-summary-leave" hidden>离开游戏</button>
+          </div>
+        </section>
+
+        <section class="game-explanation edge-glow" id="game-explanation" aria-labelledby="game-explanation-title" hidden></section>
+
+        <div class="game-modal" id="game-leave-modal" hidden>
+          <div class="game-modal__backdrop"></div>
+          <div class="game-modal__card" role="dialog" aria-modal="true" aria-labelledby="game-leave-title">
+            <p class="game-modal__kicker">挑战进行中</p>
+            <h2 class="game-modal__title" id="game-leave-title">你要终止挑战吗？</h2>
+            <p class="game-modal__desc" id="game-leave-message">终止后将结算本组挑战。</p>
+            <div class="game-modal__actions">
+              <button type="button" class="btn btn-outline game-action-btn" id="game-leave-cancel">继续挑战</button>
+              <button type="button" class="btn btn-outline game-action-btn" id="game-leave-confirm">终止并结算</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view view-guide" data-view="guide" aria-labelledby="guide-title" hidden>
+      <div class="view-inner">
+        <header class="view-header">
+          <p class="eyebrow">算法说明</p>
+          <h1 id="guide-title">说明</h1>
+          <p class="view-description">按单表、多表、矩阵、换位、其他五类浏览，或搜索算法查看规则、示例与完整对照表。</p>
+        </header>
+
+        <div class="guide-categories" id="guide-categories" role="group" aria-label="算法分类">
+          <button type="button" class="guide-category is-active" data-category="all" aria-pressed="true">全部</button>
+          <button type="button" class="guide-category" data-category="single" aria-pressed="false">单表替换</button>
+          <button type="button" class="guide-category" data-category="poly" aria-pressed="false">多表替换</button>
+          <button type="button" class="guide-category" data-category="matrix" aria-pressed="false">矩阵替换</button>
+          <button type="button" class="guide-category" data-category="transposition" aria-pressed="false">换位密码</button>
+          <button type="button" class="guide-category" data-category="other" aria-pressed="false">其他加密</button>
+        </div>
+        <p class="guide-category-note" id="guide-category-note">按单表、多表、矩阵、换位、其他五类浏览，也可以直接搜索算法。</p>
+
+        <div class="guide-search">
+          <label for="guide-search">搜索算法</label>
+          <input
+            type="search"
+            id="guide-search"
+            placeholder="搜索算法，例如：凯撒密码"
+            autocomplete="off"
+            aria-describedby="guide-search-hint"
+          >
+          <p class="hint" id="guide-search-hint">支持中文名、英文名和别名；输入即筛选。</p>
+        </div>
+
+        <p class="guide-status" id="guide-status" role="status" aria-live="polite">全部 · 共 20 个算法</p>
+
+        <div class="guide-layout">
+          <ul class="guide-list" id="guide-list" aria-label="算法列表"></ul>
+          <div id="guide-detail"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">【CipherLab】· 纯本地运算，文本不会上传。 <span class="app-version">v2.4.2</span></footer>
+
+  <script src="app.js?v=2.4.2" defer></script>
+</body>
+</html>
