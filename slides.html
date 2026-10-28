@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#f6f8fc">
+  <title>【CipherLab】密码实验室 · 项目介绍</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="vendor/reveal/reveal.css">
+  <style>
+    /* ---------- 浅色主题 ---------- */
+    :root {
+      --bg: #f6f8fc;
+      --card: #ffffff;
+      --line: #e2e8f3;
+      --ink: #12203a;
+      --muted: #5b6b86;
+      --accent: #2f6fe4;
+      --accent-soft: #eaf1ff;
+      --mono: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      --sans: "Inter", "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    }
+
+    html, body { background: var(--bg); }
+
+    .reveal {
+      font-family: var(--sans);
+      color: var(--ink);
+      background:
+        radial-gradient(880px 520px at 8% -8%, rgba(47, 111, 228, 0.10), transparent 62%),
+        radial-gradient(760px 480px at 96% 6%, rgba(124, 92, 255, 0.08), transparent 62%),
+        var(--bg);
+    }
+
+    .reveal .slides { text-align: left; }
+    .reveal section { padding: 46px 62px; box-sizing: border-box; }
+
+    .reveal h1, .reveal h2, .reveal h3 {
+      margin: 0;
+      color: var(--ink);
+      font-family: var(--sans);
+      font-weight: 750;
+      text-transform: none;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .reveal h2 { font-size: 40px; }
+    .reveal p { margin: 0; font-size: 17px; line-height: 1.7; color: var(--muted); }
+    .reveal strong { color: var(--ink); font-weight: 650; }
+    .reveal code { font-family: var(--mono); font-size: 0.86em; color: var(--accent); }
+
+    .kicker {
+      display: inline-block;
+      margin-bottom: 14px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .reveal .lead { margin-top: 12px; max-width: 820px; }
+
+    /* ---------- 卡片 ---------- */
+    .cards { display: grid; gap: 14px; margin-top: 24px; }
+    .cards--2 { grid-template-columns: repeat(2, 1fr); }
+    .cards--3 { grid-template-columns: repeat(3, 1fr); }
+
+    .card {
+      padding: 16px 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--card);
+      box-shadow: 0 8px 22px rgba(18, 32, 58, 0.05);
+    }
+
+    .card h3 { font-size: 17px; margin-bottom: 6px; }
+    .card p { font-size: 14px; line-height: 1.6; }
+    .card__num {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+    }
+
+    .stat b {
+      display: block;
+      font-family: var(--mono);
+      font-size: 34px;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1.1;
+      margin-bottom: 4px;
+    }
+    .stat span { font-size: 13px; color: var(--muted); }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+    .chip {
+      font-family: var(--mono);
+      font-size: 11.5px;
+      color: var(--muted);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 4px 11px;
+      background: var(--card);
+    }
+    .chip--accent { color: var(--accent); border-color: #c9dbfb; background: var(--accent-soft); }
+
+    .cols { display: grid; gap: 30px; margin-top: 22px; align-items: start; }
+    .cols--2 { grid-template-columns: 1fr 1fr; }
+    .cols--txt { grid-template-columns: 1.02fr 0.98fr; }
+    .cols--center { align-items: center; }
+
+    .bullets { margin: 0; padding: 0; list-style: none; }
+    .bullets li {
+      position: relative;
+      padding-left: 20px;
+      margin-bottom: 11px;
+      font-size: 15.5px;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+    .bullets li::before {
+      content: "";
+      position: absolute;
+      left: 3px;
+      top: 0.62em;
+      width: 6px;
+      height: 6px;
+      border-radius: 2px;
+      background: var(--accent);
+    }
+    .bullets li b { color: var(--ink); font-weight: 600; }
+
+    /* ---------- 表格 ---------- */
+    .reveal table { width: 100%; border-collapse: collapse; margin-top: 18px; }
+    .reveal table th {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: left;
+      padding: 9px 12px;
+      border-bottom: 1px solid #cfdcf1;
+    }
+    .reveal table td {
+      padding: 10px 12px;
+      font-size: 14.5px;
+      color: var(--muted);
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+    .reveal table td:first-child {
+      color: var(--ink);
+      font-weight: 600;
+      white-space: nowrap;
+      width: 140px;
+    }
+
+    /* ---------- 截图框 ---------- */
+    .browser {
+      position: relative;
+      margin: 0;
+      padding-top: 20px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      overflow: hidden;
+      box-shadow: 0 16px 38px rgba(18, 32, 58, 0.12);
+    }
+    .browser::before {
+      content: "";
+      position: absolute;
+      top: 7px;
+      left: 10px;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #ff5f57;
+      box-shadow: 12px 0 0 #febc2e, 24px 0 0 #28c840;
+    }
+    .browser img { display: block; width: 100%; }
+    .browser figcaption {
+      padding: 7px 12px;
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      border-top: 1px solid #eef2f9;
+      background: #fbfcfe;
+    }
+
+    .phone { width: 176px; }
+    .phone-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+
+    /* ---------- 封面 ---------- */
+    .cover { text-align: center !important; }
+    .cover .eyebrow {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      color: var(--accent);
+    }
+    .cover h1 {
+      margin: 20px 0 0;
+      font-size: 60px;
+      line-height: 1.24;
+      letter-spacing: -0.03em;
+    }
+    .cover__sub { margin-top: 20px; font-size: 18px; color: var(--muted); }
+    .reveal .cover__sub { margin-top: 24px; }
+    .cover__line {
+      width: 56px;
+      height: 3px;
+      margin: 30px auto 0;
+      border-radius: 2px;
+      background: var(--accent);
+    }
+    .cover__meta {
+      margin-top: 26px;
+      font-family: var(--mono);
+      font-size: 11.5px;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+    }
+    .reveal .cover__meta { margin-top: 28px; }
+    .cover__meta span + span::before { content: " · "; }
+
+    /* ---------- 结束 ---------- */
+    .end { text-align: center !important; }
+    .end h2 { font-size: 46px; }
+    .end .thanks { margin: 18px auto 0; max-width: 720px; }
+    .end .nm {
+      margin-top: 40px;
+      font-family: var(--mono);
+      font-size: 11.5px;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+
+    /* ---------- 页码与进度 ---------- */
+    .reveal .slide-number {
+      left: 18px;
+      right: auto;
+      bottom: 14px;
+      padding: 0;
+      background: transparent;
+      color: #93a2bd;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+    }
+    .reveal .progress { color: var(--accent); height: 3px; }
+
+    /* ---------- 返回网站 ---------- */
+    .back-home {
+      position: fixed;
+      right: 22px;
+      bottom: 20px;
+      z-index: 40;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 15px;
+      border: 1px solid #cfdcf1;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.94);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      box-shadow: 0 8px 22px rgba(18, 32, 58, 0.14);
+      transition: color 0.18s ease, border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+    }
+    .back-home:hover {
+      color: var(--accent);
+      border-color: #b7cbee;
+      transform: translateY(-1px);
+      box-shadow: 0 12px 28px rgba(18, 32, 58, 0.18);
+    }
+    .back-home:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+    .back-home__arrow { font-size: 14px; line-height: 1; }
+
+    @media print {
+      .reveal { background: var(--bg) !important; }
+      .browser { box-shadow: none; }
+      .back-home { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- 01 封面 -->
+      <section class="cover">
+        <p class="eyebrow">【CipherLab】密码实验室</p>
+        <h1>把经典密码<br>装进一个网页</h1>
+        <p class="cover__sub">20 种密码的加解密、图鉴与破译练习 · 双击即用 · 全部在本地运行</p>
+        <div class="cover__line"></div>
+        <p class="cover__meta"><span>纯前端</span><span>零依赖</span><span>离线可用</span><span>V2.4.4</span></p>
+      </section>
+
+      <!-- 02 概览 -->
+      <section>
+        <span class="kicker">01 · 项目概览</span>
+        <h2>一个网页，三件事</h2>
+        <div class="cols cols--txt">
+          <div>
+            <div class="cards cards--3" style="margin-top:22px">
+              <div class="card stat"><b>20</b><span>种经典密码</span></div>
+              <div class="card stat"><b>10</b><span>题一组挑战</span></div>
+              <div class="card stat"><b>0</b><span>依赖 / 网络请求</span></div>
+            </div>
+            <ul class="bullets" style="margin-top:22px">
+              <li><b>加密 / 解密</b>：选算法、输入文本，实时得到结果</li>
+              <li><b>密码图鉴</b>：每种密码的规则、示例、完整对照表</li>
+              <li><b>破译挑战</b>：抽题破译，提示、计时、计分一条龙</li>
+            </ul>
+          </div>
+          <figure class="browser">
+            <img src="assets/slides/home.png" alt="CipherLab 首页">
+            <figcaption>首页 · 三个入口</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <!-- 03 加密与解密 -->
+      <section>
+        <span class="kicker">02 · 加密与解密</span>
+        <h2>输入即出结果</h2>
+        <p class="lead">没有“加密”按钮要按：一边输入，一边就能看到结果。</p>
+        <div class="cols cols--txt">
+          <div>
+            <ul class="bullets" style="margin-top:4px">
+              <li><b>明文密文并排</b>：左边输入，右边同步出结果，方便逐字对照</li>
+              <li><b>20 种算法</b>：凯撒、维吉尼亚、普莱费尔、摩斯、盲文……</li>
+              <li><b>密钥按需出现</b>：凯撒给位移量，维吉尼亚给关键词，无需密钥的直接隐藏</li>
+              <li><b>输错有提示</b>：位移量超范围、关键词含数字，都会明确告诉你哪里不对</li>
+              <li><b>复制与历史</b>：一键复制结果，最近 5 次加解密自动留档</li>
+            </ul>
+          </div>
+          <figure class="browser">
+            <img src="assets/slides/matrix-detail.png" alt="加密界面的方阵">
+            <figcaption>输入即加密 · 矩阵密码还会画出方阵</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <!-- 04 算法一览 -->
+      <section>
+        <span class="kicker">03 · 算法一览</span>
+        <h2>五类密码，二十种玩法</h2>
+        <table>
+          <thead>
+            <tr><th>分类</th><th>包含的算法</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>单表替换</td><td>凯撒 · ROT13 · Atbash · 仿射 · A1Z26 · ASCII 码</td></tr>
+            <tr><td>多表替换</td><td>维吉尼亚 · 博福特</td></tr>
+            <tr><td>矩阵替换</td><td>普莱费尔 · 四方 · 二方 · 波利比奥斯方阵 · ADFGVX</td></tr>
+            <tr><td>换位密码</td><td>栅栏 · 路径（螺旋）</td></tr>
+            <tr><td>符号与编码</td><td>摩斯 · 培根 · 猪圈 · 旗语 · 盲文</td></tr>
+          </tbody>
+        </table>
+        <div class="chips">
+          <span class="chip chip--accent">每个算法都能加密、解密、查图鉴、进挑战</span>
+          <span class="chip">规则统一，错误提示一致</span>
+        </div>
+      </section>
+
+      <!-- 05 图鉴 -->
+      <section>
+        <span class="kicker">04 · 密码图鉴</span>
+        <h2>每一种密码，都能查到怎么算</h2>
+        <div class="cols cols--txt">
+          <div>
+            <ul class="bullets" style="margin-top:4px">
+              <li><b>按类浏览</b>：单表、多表、矩阵、换位、其他五栏切换</li>
+              <li><b>输入即搜</b>：中文名、英文名、别名都能命中</li>
+              <li><b>每篇都有</b>：密钥、加密步骤、解密步骤、示例、注意事项</li>
+              <li><b>完整对照表</b>：摩斯、培根、盲文、猪圈、旗语、方阵一个不少</li>
+            </ul>
+          </div>
+          <figure class="browser">
+            <img src="assets/slides/guide.png" alt="密码图鉴页面">
+            <figcaption>图鉴 · 左侧列表，右侧详解</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <!-- 06 破译挑战 -->
+      <section>
+        <span class="kicker">05 · 破译挑战</span>
+        <h2>学完就练：一局 10 题</h2>
+        <p class="lead">从“看懂规则”到“亲手破译”，中间只差一次练习。</p>
+        <div class="cols cols--txt">
+          <div>
+            <ul class="bullets" style="margin-top:4px">
+              <li><b>三档难度</b>：简单（无密钥）、中等（单表替换）、困难（多表与矩阵）</li>
+              <li><b>两级提示</b>：先给算法，再给密钥，实在不会还能放弃看答案</li>
+              <li><b>草稿纸</b>：内置试算区，选算法、填密钥，自己验证思路</li>
+              <li><b>计时计分</b>：每题 10 分，用提示会少几分，连对三题有额外加分</li>
+              <li><b>最高分记录</b>：每个难度的最好成绩会留在本机</li>
+            </ul>
+          </div>
+          <figure class="browser">
+            <img src="assets/slides/game-detail.png" alt="破译挑战界面">
+            <figcaption>答题页 · 进度、计时、得分与提示</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <!-- 07 结束 -->
+      <section class="end">
+        <h2>谢谢观看</h2>
+        <div class="chips" style="justify-content:center;margin-top:26px">
+          <span class="chip chip--accent">加密解密</span>
+          <span class="chip">密码图鉴</span>
+          <span class="chip">破译挑战</span>
+          <span class="chip">中英双语</span>
+        </div>
+        <p class="nm">【CipherLab】· V2.4.4</p>
+      </section>
+
+    </div>
+  </div>
+
+  <a class="back-home" href="index.html">
+    <span class="back-home__arrow" aria-hidden="true">←</span>
+    返回网站
+  </a>
+
+  <script src="vendor/reveal/reveal.js"></script>
+  <script>
+    Reveal.initialize({
+      width: 1280,
+      height: 720,
+      margin: 0.03,
+      minScale: 0.2,
+      maxScale: 1.8,
+      center: true,
+      hash: true,
+      history: true,
+      controls: false,
+      progress: true,
+      slideNumber: 'c/t',
+      transition: 'fade',
+      transitionSpeed: 'fast',
+      backgroundTransition: 'fade',
+      keyboard: true,
+      overview: true,
+      touch: true,
+    });
+  </script>
+</body>
+</html>

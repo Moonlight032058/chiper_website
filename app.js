@@ -1,5 +1,5 @@
 /* =========================================================
-   【CipherLab】V2.4.3
+   【CipherLab】V2.4.4
    全部加解密运算均在浏览器本地完成，不发起任何网络请求。
    脚本使用经典 <script defer>，以兼容 file:// 直接打开。
    ========================================================= */
@@ -2594,6 +2594,11 @@
     '无法识别的培根码': 'Unrecognized Bacon code',
     '盲文暂不支持字符': 'Braille does not support character',
     '算法': 'Algorithm',
+    '打开站点索引': 'Open the site index',
+    '站点索引': 'Site index',
+    '回到密码实验室': 'Back to Cipher Lab',
+    '项目介绍': 'Project overview',
+    '打开答辩演示幻灯片': 'Open the defense slides',
     '【CipherLab】· 纯本地运算，文本不会上传。': '【CipherLab】 · Runs entirely locally; your text is never uploaded.',
     'CipherLab · 密码实验室': 'CipherLab · Cryptography Lab',
   });
@@ -3187,6 +3192,9 @@
     siteMain: document.getElementById('site-main'),
     navLinks: Array.from(document.querySelectorAll('.site-nav a[data-route]')),
     views: Array.from(document.querySelectorAll('[data-view]')),
+
+    brandButton: document.getElementById('brand-button'),
+    indexMenu: document.getElementById('index-menu'),
 
     toolTitle: document.getElementById('tool-title'),
     toolDescription: document.getElementById('tool-description'),
@@ -4807,6 +4815,19 @@
   }
 
   /**
+   * 展开 / 收起 logo 索引菜单。
+   * @param {boolean} open
+   */
+  function setIndexMenuOpen(open) {
+    if (!dom.brandButton || !dom.indexMenu) {
+      return;
+    }
+
+    dom.indexMenu.hidden = !open;
+    dom.brandButton.setAttribute('aria-expanded', String(Boolean(open)));
+  }
+
+  /**
    * 点击任意 #/ 链接时立即切换栏目。
    * 这样即使某些预览环境不触发 hashchange，导航也能工作。
    * @param {MouseEvent} event
@@ -4919,6 +4940,37 @@
     dom.guideList.addEventListener('click', handleGuideListClick);
 
     document.addEventListener('click', handleRouteLinkClick);
+
+    if (dom.brandButton && dom.indexMenu) {
+      dom.brandButton.addEventListener('click', (event) => {
+        event.stopPropagation();
+        setIndexMenuOpen(dom.indexMenu.hidden);
+      });
+
+      dom.indexMenu.addEventListener('click', (event) => {
+        const link = event.target instanceof Element ? event.target.closest('a') : null;
+
+        if (link) {
+          setIndexMenuOpen(false);
+        }
+      });
+
+      document.addEventListener('click', (event) => {
+        const inside = event.target instanceof Element && event.target.closest('.brand-wrap');
+
+        if (!dom.indexMenu.hidden && !inside) {
+          setIndexMenuOpen(false);
+        }
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !dom.indexMenu.hidden) {
+          setIndexMenuOpen(false);
+          dom.brandButton.focus();
+        }
+      });
+    }
+
     window.addEventListener('hashchange', renderRoute);
   }
 
